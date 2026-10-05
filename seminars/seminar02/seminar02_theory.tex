@@ -1,0 +1,187 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{DejaVu Sans}
+\setsansfont{DejaVu Sans}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\geometry{left=18mm,right=18mm,top=18mm,bottom=20mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\definecolor{hseblue}{HTML}{003D7C}
+\definecolor{softblue}{HTML}{EEF4FA}
+\hypersetup{colorlinks=true,linkcolor=hseblue,urlcolor=hseblue}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Методы оптимизации в машинном обучении}
+\rhead{Семинар 2}
+\cfoot{\thepage}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\grad}{\nabla}
+\newcounter{problem}
+\newenvironment{problem}[1][]{%
+  \refstepcounter{problem}%
+  \begin{tcolorbox}[colback=white,colframe=hseblue!70!black,boxrule=0.7pt,arc=2mm,left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,title={\textbf{Задача \theproblem.} #1},fonttitle=\normalsize]
+}{\end{tcolorbox}}
+\begin{document}
+
+{\LARGE\bfseries\color{hseblue} Семинар 2. Геометрия оптимизации}
+
+\vspace{0.4em}
+На эту часть семинара отводится примерно 40 минут. В задачах важны не только вычисления, но и короткая интерпретация результата.
+
+\begin{problem}[Скалярное произведение и геометрия направлений]
+Даны векторы
+\[
+x=(1,2,-1),\qquad
+v_1=(2,0,1),\qquad
+v_2=(1,-1,-1),\qquad
+v_3=(-2,-1,0).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Для каждого $v_i$ вычислите $x^\top v_i$.
+\item Определите, образует ли $v_i$ с $x$ острый, прямой или тупой угол.
+\item Придумайте свой ненулевой вектор $u$, ортогональный $x$, и проверьте это вычислением.
+\item Сформулируйте, что знак скалярного произведения говорит о взаимном направлении двух векторов.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Локальная линейная модель]
+Рассмотрим функцию
+\[
+f(x,y)=x^2+xy+y^2
+\]
+и точку $x_0=(1,1)$.
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad f(x_0)$ и $f(x_0)$.
+\item Используя локальную линейную модель
+\[
+f(x_0+h)\approx f(x_0)+\grad f(x_0)^\top h,
+\]
+приблизьте значение $f(1.01,0.98)$.
+\item Вычислите точное значение $f(1.01,0.98)$ и абсолютную ошибку приближения.
+\item Почему разумно ожидать, что при уменьшении длины $h$ линейное приближение становится точнее?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Направленные производные]
+Пусть
+\[
+f(x,y)=x^2+4y^2,\qquad x_0=(1,1),
+\]
+и заданы единичные направления
+\[
+v_1=(1,0),\qquad
+v_2=(0,1),\qquad
+v_3=\frac{1}{\sqrt2}(1,-1).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad f(x_0)$.
+\item Вычислите $D_{v_i}f(x_0)$ для каждого направления.
+\item В каких из этих направлений функция локально возрастает, а в каких убывает?
+\item Какое из трёх направлений даёт наиболее быстрый локальный рост? Наиболее быстрое локальное убывание?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Направление наискорейшего роста]
+Пусть $f:\R^d\to\R$ дифференцируема в точке $x$ и $\grad f(x)\neq0$. Для любого единичного направления $v$
+\[
+D_vf(x)=\grad f(x)^\top v.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Используя неравенство Коши--Буняковского, докажите, что
+\[
+D_vf(x)\le \norm{\grad f(x)}_2.
+\]
+\item Покажите, что равенство достигается при
+\[
+v=\frac{\grad f(x)}{\norm{\grad f(x)}_2}.
+\]
+\item Сформулируйте и докажите аналогичное утверждение о направлении наискорейшего локального убывания.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Линии уровня и градиент]
+Рассмотрим
+\[
+f(x,y)=x^2+4y^2.
+\]
+Линия уровня $f(x,y)=5$ проходит через точку $x_0=(1,1)$.
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad f(x_0)$.
+\item Найдите ненулевой вектор $v$, касательный к линии уровня в точке $x_0$.
+\item Проверьте, что $\grad f(x_0)^\top v=0$.
+\item Запишите уравнение касательной прямой к эллипсу $x^2+4y^2=5$ в точке $(1,1)$.
+\item Объясните геометрический смысл полученной ортогональности.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Кривизна вдоль направления]
+Пусть в некоторой точке гессиан функции равен
+\[
+H=
+\begin{pmatrix}
+2&0\\
+0&8
+\end{pmatrix}.
+\]
+Рассмотрите единичные направления
+\[
+v_1=(1,0),\qquad
+v_2=(0,1),\qquad
+v_3=\frac{1}{\sqrt2}(1,1).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Вычислите направленную кривизну $\kappa(v)=v^\top Hv$ для каждого $v_i$.
+\item В каком направлении поверхность наиболее «крутая» из трёх? В каком наиболее «плоская»?
+\item Как связаны найденные значения с собственными значениями матрицы $H$?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Собственные значения и квадратичная форма]
+Пусть
+\[
+A=
+\begin{pmatrix}
+3&1\\
+1&3
+\end{pmatrix}.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите собственные значения $A$ и соответствующие собственные направления.
+\item Определите знак квадратичной формы $x^\top Ax$ для $x\neq0$.
+\item Докажите для этой матрицы оценку
+\[
+2\norm{x}_2^2\le x^\top Ax\le4\norm{x}_2^2.
+\]
+\item Как выглядит поверхность $f(x)=\frac12x^\top Ax$ около начала координат: как «чаша», «купол» или «седло»? Почему?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Стационарные точки и их классификация]
+Рассмотрим функцию
+\[
+f(x,y)=x^2+xy+y^2-2x.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите все стационарные точки из условия $\grad f(x,y)=0$.
+\item Вычислите гессиан и его собственные значения.
+\item Классифицируйте найденную стационарную точку.
+\item Теперь рассмотрите
+\[
+g(x,y)=x^2-y^2.
+\]
+Покажите, что $(0,0)$ является стационарной точкой, и классифицируйте её по гессиану.
+\end{enumerate}
+\end{problem}
+
+\end{document}
