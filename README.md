@@ -22,10 +22,14 @@
 |---|---|---|
 | 2 | Геометрия оптимизации | [8 задач](seminars/seminar02/tasks.md) |
 | 3 | Квадратичная оптимизация, обусловленность и градиентный спуск | [10 задач](seminars/seminar03/tasks.md) |
-
+| 4 | Гладкость, выпуклость и условия оптимальности | [PDF](pdf/seminar04_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar04/seminar04_computational_tasks.ipynb) |
 ## Домашние лабораторные
 
-Каталог [`labs/`](labs/) подготовлен для домашних лабораторных работ. Условия, стартовые ноутбуки, данные и критерии оценивания будут добавляться по мере прохождения курса.
+| № | Тема | Материалы |
+|---|---|---|
+| 1 | Геометрия задачи оптимизации и градиентные методы | [описание](labs/lab01/README.md) · [ноутбук](labs/lab01/lab01_geometry_gd.ipynb) · [открыть в Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/labs/lab01/lab01_geometry_gd.ipynb) |
+
+Каждая лабораторная хранится в отдельном каталоге `labs/labXX/`; при необходимости внутри неё добавляются `data/` и `assets/`. Решения в публичный репозиторий не выкладываются.
 
 ## Структура репозитория
 
@@ -39,7 +43,14 @@ lectures/
 seminars/
   seminar02/tasks.md
   seminar03/tasks.md
+  seminar04/
+    README.md
+    seminar04_theory.tex
+    seminar04_computational_tasks.ipynb
 labs/
+  lab01/
+    README.md
+    lab01_geometry_gd.ipynb
 pdf/                     # автоматически собранные лекции
 .github/workflows/       # автоматическая сборка
 ```
