@@ -1,4 +1,4 @@
-name: Build lecture PDFs
+name: Build course PDFs
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
     paths:
       - "lectures/**/*.tex"
       - "lectures/**/generate_figures.py"
+      - "seminars/**/*.tex"
       - "requirements.txt"
       - ".github/workflows/build-pdfs.yml"
   workflow_dispatch:
@@ -15,7 +16,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: lecture-pdf-build-${{ github.ref }}
+  group: course-pdf-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -106,6 +107,11 @@ jobs:
         run: |
           latexmk -pdf -interaction=nonstopmode -halt-on-error lecture05_convexity.tex
 
+      - name: Build seminar 4
+        working-directory: seminars/seminar04
+        run: |
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar04_theory.tex
+
       - name: Collect PDFs
         run: |
           mkdir -p pdf
@@ -114,11 +120,12 @@ jobs:
           cp lectures/lecture03/lecture03_quadratic.pdf pdf/
           cp lectures/lecture04/lecture04_conditioning_gd.pdf pdf/
           cp lectures/lecture05/lecture05_convexity.pdf pdf/
+          cp seminars/seminar04/seminar04_theory.pdf pdf/seminar04_theory.pdf
 
       - name: Upload PDFs as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lecture-pdfs
+          name: course-pdfs
           path: pdf/*.pdf
           retention-days: 30
           if-no-files-found: error
@@ -137,7 +144,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "build: update compiled lecture PDFs"
+          git commit -m "build: update compiled course PDFs"
 
           # The main branch may have advanced while LaTeX was compiling.
           # Rebase the generated-PDF commit onto the latest main before pushing.
