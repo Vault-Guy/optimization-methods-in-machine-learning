@@ -1,0 +1,292 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{DejaVu Sans}
+\setsansfont{DejaVu Sans}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\geometry{left=18mm,right=18mm,top=18mm,bottom=20mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\definecolor{hseblue}{HTML}{003D7C}
+\definecolor{softblue}{HTML}{EEF4FA}
+\hypersetup{colorlinks=true,linkcolor=hseblue,urlcolor=hseblue}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Методы оптимизации в машинном обучении}
+\rhead{Семинар 3}
+\cfoot{\thepage}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\grad}{\nabla}
+\newcounter{problem}
+\newenvironment{problem}[1][]{%
+  \refstepcounter{problem}%
+  \begin{tcolorbox}[colback=white,colframe=hseblue!70!black,boxrule=0.7pt,arc=2mm,left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,title={\textbf{Задача \theproblem.} #1},fonttitle=\normalsize]
+}{\end{tcolorbox}}
+\begin{document}
+
+{\LARGE\bfseries\color{hseblue} Семинар 3. Квадратичная оптимизация, обусловленность и градиентный спуск}
+
+\vspace{0.4em}
+Материал: лекция 3 и первая половина лекции 4. Базовое ядро семинара: задачи 1, 3, 5, 8, 9 и 10. Если не сказано обратное, используется евклидова норма $\norm{\cdot}_2$.
+
+\begin{problem}[Квадратичная функция в матричной форме]
+Рассмотрим
+\[
+f(x,y)=2x^2+2xy+3y^2-4x+2y+5.
+\]
+Положим $z=(x,y)^\top$.
+\begin{enumerate}[label=\alph*)]
+\item Представьте функцию в виде
+\[
+f(z)=\frac12 z^\top Az-b^\top z+c.
+\]
+Найдите $A,b,c$.
+\item Найдите $\grad f(z)$ и $\grad^2f(z)$ непосредственно из координатной записи.
+\item Проверьте, что полученные выражения совпадают с формулами
+\[
+\grad f(z)=Az-b,\qquad \grad^2f(z)=A.
+\]
+\item Что в этой записи отвечает за форму поверхности, а что --- за положение её центра?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Спектр и положительная определённость]
+Пусть
+\[
+A=
+\begin{pmatrix}
+3&1\\
+1&3
+\end{pmatrix}.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите собственные значения и собственные векторы $A$.
+\item Определите, является ли $A$ положительно определённой.
+\item Используя спектральное разложение, объясните, почему $x^\top Ax>0$ для любого $x\neq0$.
+\item Найдите минимальное и максимальное значения отношения Рэлея
+\[
+R(x)=\frac{x^\top Ax}{x^\top x},\qquad x\neq0.
+\]
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Точный минимум квадратичной функции]
+Пусть
+\[
+A=
+\begin{pmatrix}
+2&1\\
+1&2
+\end{pmatrix},
+\qquad
+b=
+\begin{pmatrix}
+1\\
+-1
+\end{pmatrix},
+\]
+и
+\[
+f(x)=\frac12x^\top Ax-b^\top x.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Проверьте, что $A\succ0$.
+\item Найдите стационарную точку $x^\star$ из уравнения $Ax^\star=b$.
+\item Докажите тождество
+\[
+f(x)-f(x^\star)=\frac12(x-x^\star)^\top A(x-x^\star).
+\]
+\item Сделайте вывод о глобальности и единственности найденного минимума.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Собственные направления и геометрия линий уровня]
+Рассмотрим
+\[
+A=
+\begin{pmatrix}
+5&4\\
+4&5
+\end{pmatrix},
+\qquad
+f(x)=\frac12x^\top Ax.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите собственные значения и единичные собственные векторы $A$.
+\item В каком собственном направлении функция растёт быстрее при одинаковом перемещении от нуля? Почему?
+\item Для линии уровня $f(x)=1$ найдите длины полуосей эллипса в собственных координатах.
+\item Под каким углом к координатным осям расположены главные оси этого эллипса?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Число обусловленности и вытянутость эллипса]
+Пусть
+\[
+A=
+\begin{pmatrix}
+1&0\\
+0&25
+\end{pmatrix},
+\qquad
+f(x)=\frac12x^\top Ax.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\lambda_{\min}$, $\lambda_{\max}$ и $\kappa_2(A)$.
+\item Запишите уравнение линии уровня $f(x)=1$ и найдите её полуоси $a_1,a_2$.
+\item Проверьте равенство
+\[
+\frac{a_{\max}}{a_{\min}}=\sqrt{\kappa_2(A)}.
+\]
+\item Что изменится в геометрии линий уровня, если заменить $A$ на $7A$? Что произойдёт с $\kappa_2(A)$?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Чувствительность решения линейной системы]
+Пусть
+\[
+A=
+\begin{pmatrix}
+1&0\\
+0&0.02
+\end{pmatrix},
+\qquad
+b=
+\begin{pmatrix}
+1\\
+0
+\end{pmatrix},
+\qquad
+\Delta b=
+\begin{pmatrix}
+0\\
+0.01
+\end{pmatrix}.
+\]
+Рассматриваются системы $Ax=b$ и $A(x+\Delta x)=b+\Delta b$.
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\kappa_2(A)$, $x$ и $\Delta x$.
+\item Вычислите относительное возмущение входных данных
+\[
+\frac{\norm{\Delta b}_2}{\norm{b}_2}
+\]
+и относительное изменение решения
+\[
+\frac{\norm{\Delta x}_2}{\norm{x}_2}.
+\]
+\item Проверьте оценку
+\[
+\frac{\norm{\Delta x}_2}{\norm{x}_2}
+\le
+\kappa_2(A)\frac{\norm{\Delta b}_2}{\norm{b}_2}.
+\]
+\item Почему в этом примере достигается равенство? Укажите, с какими собственными направлениями совпадают $b$ и $\Delta b$.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Почему возникает градиентный шаг]
+Пусть в некоторой точке $x$ известен градиент
+\[
+g=\grad f(x)=
+\begin{pmatrix}
+3\\
+-4
+\end{pmatrix}.
+\]
+Для $\alpha>0$ рассмотрим вспомогательную функцию
+\[
+m(h)=g^\top h+\frac1{2\alpha}\norm{h}_2^2.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad_hm(h)$ и $\grad_h^2m(h)$.
+\item Объясните, почему условие $\grad_hm(h^\star)=0$ здесь достаточно для единственного глобального минимума.
+\item Найдите $h^\star$ и получите формулу $h^\star=-\alpha\grad f(x)$.
+\item Почему минимизируется именно модель $m(h)$, а не исходная функция $f(x+h)$?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Градиентный спуск в собственных координатах]
+Пусть
+\[
+f(x)=\frac12x^\top Ax,\qquad
+A=
+\begin{pmatrix}
+1&0\\
+0&4
+\end{pmatrix},
+\qquad
+x_0=
+\begin{pmatrix}
+1\\
+1
+\end{pmatrix},
+\qquad
+\alpha=0.2.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Запишите итерацию градиентного спуска $x_{k+1}=x_k-\alpha Ax_k$.
+\item Найдите множители
+\[
+q_1=1-\alpha\lambda_1,\qquad q_2=1-\alpha\lambda_2.
+\]
+\item Получите явные формулы для координат $x_{k,1}$ и $x_{k,2}$.
+\item Вычислите $x_1,x_2,x_3$.
+\item Какая компонента ошибки исчезает быстрее и почему?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Когда градиентный спуск сходится?]
+Пусть симметричная положительно определённая матрица $A$ имеет собственные значения
+\[
+\lambda_1=1,\qquad \lambda_2=5.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Из условий $|1-\alpha\lambda_i|<1$ найдите полный интервал постоянных шагов $\alpha$, при которых градиентный спуск сходится из любой начальной точки.
+\item Для $\alpha\in\{0.1,0.25,0.4,0.45\}$ найдите $q_1$ и $q_2$.
+\item Для каждого шага опишите поведение ошибки: монотонное затухание, затухающие колебания, пограничный режим или расходимость.
+\item Объясните, почему условие
+\[
+0<\alpha<\frac{2}{\lambda_{\max}}
+\]
+определяется именно наибольшим собственным значением.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Обусловленность и скорость градиентного спуска]
+Пусть
+\[
+\mu=1,\qquad L=10,\qquad \kappa=\frac L\mu=10,
+\]
+и используется шаг $\alpha=1/L$.
+\begin{enumerate}[label=\alph*)]
+\item Для собственного направления с собственным значением $\lambda_i$ запишите
+\[
+q_i=1-\frac{\lambda_i}{L}.
+\]
+\item Покажите, что наихудший коэффициент сокращения ошибки достигается при $\lambda_i=\mu$ и равен
+\[
+q_{\max}=1-\frac{\mu}{L}=1-\frac1\kappa.
+\]
+\item Найдите численное значение $q_{\max}$.
+\item Оцените минимальное целое $k$, гарантирующее
+\[
+\norm{e_k}_2\le0.01\norm{e_0}_2
+\]
+из оценки
+\[
+\norm{e_k}_2\le q_{\max}^k\norm{e_0}_2.
+\]
+\item Как качественно изменится требуемое число итераций, если $\kappa$ увеличить до $100$?
+\end{enumerate}
+\end{problem}
+
+\end{document}
