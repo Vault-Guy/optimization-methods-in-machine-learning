@@ -20,8 +20,8 @@
 
 | № | Тема | Задачи |
 |---|---|---|
-| 2 | Геометрия оптимизации | [8 задач](seminars/seminar02/tasks.md) |
-| 3 | Квадратичная оптимизация, обусловленность и градиентный спуск | [10 задач](seminars/seminar03/tasks.md) |
+| 2 | Геометрия оптимизации | [8 задач](seminars/seminar02/tasks.md) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar02/seminar02_computational_tasks.ipynb) |
+| 3 | Квадратичная оптимизация, обусловленность и градиентный спуск | [10 задач](seminars/seminar03/tasks.md) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar03/seminar03_computational_tasks.ipynb) |
 | 4 | Гладкость, выпуклость и условия оптимальности | [PDF](pdf/seminar04_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar04/seminar04_computational_tasks.ipynb) |
 ## Домашние лабораторные
 
@@ -41,8 +41,12 @@ lectures/
   lecture04/
   lecture05/
 seminars/
-  seminar02/tasks.md
-  seminar03/tasks.md
+  seminar02/
+    tasks.md
+    seminar02_computational_tasks.ipynb
+  seminar03/
+    tasks.md
+    seminar03_computational_tasks.ipynb
   seminar04/
     README.md
     seminar04_theory.tex
