@@ -1,0 +1,235 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{DejaVu Sans}
+\setsansfont{DejaVu Sans}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\geometry{left=18mm,right=18mm,top=18mm,bottom=20mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\definecolor{hseblue}{HTML}{003D7C}
+\definecolor{softblue}{HTML}{EEF4FA}
+\hypersetup{colorlinks=true,linkcolor=hseblue,urlcolor=hseblue}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Методы оптимизации в машинном обучении}
+\rhead{Семинар 4}
+\cfoot{\thepage}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\grad}{\nabla}
+\newcounter{problem}
+\newenvironment{problem}[1][]{%
+  \refstepcounter{problem}%
+  \begin{tcolorbox}[colback=white,colframe=hseblue!70!black,boxrule=0.7pt,arc=2mm,left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,title={\textbf{Задача \theproblem.} #1},fonttitle=\normalsize]
+}{\end{tcolorbox}}
+\begin{document}
+
+{\LARGE\bfseries\color{hseblue} Семинар 4. Гладкость, выпуклость и условия оптимальности}
+
+\vspace{0.4em}
+Материал: вторая половина лекции 4 и лекция 5. Основные задачи рекомендуется разобрать на семинаре; дополнительные --- использовать как резерв и для самостоятельной работы.
+
+\section*{Основные задачи}
+
+\begin{problem}[$L$-гладкость и гессиан]
+Рассмотрим функцию
+\[
+f(x,y)=\frac12x^2+2y^2+\sin x.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad f(x,y)$ и $\grad^2 f(x,y)$.
+\item Найдите наименьшую константу $L$, для которой
+\[
+\|\grad^2 f(x,y)\|_2\le L
+\qquad\text{для всех }(x,y)\in\R^2.
+\]
+\item Используя найденную константу, объясните, почему
+\[
+\|\grad f(u)-\grad f(v)\|_2\le L\|u-v\|_2
+\qquad\text{для любых }u,v\in\R^2.
+\]
+\item Является ли функция выпуклой? Сильно выпуклой на всей $\R^2$?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Лемма об убывании и шаг градиентного спуска]
+Пусть $f$ --- дифференцируемая $L$-гладкая функция и известно, что
+\[
+f(x+h)\le f(x)+\grad f(x)^\top h+\frac L2\|h\|_2^2.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Подставьте $h=-\alpha\grad f(x)$ и выведите оценку
+\[
+f(x-\alpha\grad f(x))
+\le
+f(x)-\alpha\left(1-\frac{\alpha L}{2}\right)\|\grad f(x)\|_2^2.
+\]
+\item При каких $\alpha>0$ эта оценка гарантирует строгое уменьшение значения функции, если $\grad f(x)\neq0$?
+\item Что получается при $\alpha=1/L$?
+\item Верно ли утверждение: «если $\alpha>2/L$, то значение функции обязательно возрастёт»? Обоснуйте ответ.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Выпуклость по определению и неравенство Йенсена]
+Для каждой функции определите, выпукла ли она на указанном множестве:
+\[
+f_1(x)=x^2,\quad x\in\R;
+\qquad
+f_2(x)=|x|,\quad x\in\R;
+\]
+\[
+f_3(x)=x^3,\quad x\in\R;
+\qquad
+f_4(x)=-\log x,\quad x>0.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Для $f_1$ докажите выпуклость непосредственно из определения, не используя производные. Полезно рассмотреть разность
+\[
+(1-t)x^2+ty^2-\bigl((1-t)x+ty\bigr)^2.
+\]
+\item Для $f_2,f_3,f_4$ дайте доказательство или контрпример.
+\item Используя выпуклость $-\log x$ и неравенство Йенсена с весами $1/2,1/2$, получите неравенство между средним арифметическим и средним геометрическим двух положительных чисел.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Критерий первого порядка и глобальный минимум]
+Рассмотрим функцию
+\[
+f(x,y)=e^x+\frac12y^2.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad f(x,y)$.
+\item Для точки $x_0=(0,1)$ выпишите линейную модель
+\[
+m_{x_0}(z)=f(x_0)+\grad f(x_0)^\top(z-x_0).
+\]
+\item Докажите, что $f(z)\ge m_{x_0}(z)$ для любого $z\in\R^2$.
+\end{enumerate}
+
+Теперь рассмотрим
+\[
+g(x,y)=x^2+2y^2-2x+4y.
+\]
+\begin{enumerate}[label=\alph*),resume]
+\item Найдите стационарную точку $g$.
+\item Не сравнивая её со всеми остальными точками, докажите, что это глобальный минимум.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Гессиан, сильная выпуклость и параметры $\mu,L$]
+Рассмотрим
+\[
+f(x,y)=x^2+xy+2y^2+\frac14x^4.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите гессиан $\grad^2f(x,y)$.
+\item Докажите, что функция выпукла на всей $\R^2$.
+\item Найдите максимально возможную константу $\mu>0$, для которой
+\[
+\grad^2f(x,y)\succeq \mu I
+\qquad\text{для всех }(x,y)\in\R^2.
+\]
+\item Является ли функция глобально $L$-гладкой на всей $\R^2$?
+\item Найдите подходящую константу $L$ на полосе $|x|\le1$.
+\end{enumerate}
+\end{problem}
+
+\section*{Дополнительные задачи}
+
+\begin{problem}[Почему локальный минимум выпуклой функции глобален]
+Пусть $f$ выпукла на выпуклом множестве $X$, а $x^\star\in X$ --- локальный минимум. Докажите, что $x^\star$ является глобальным минимумом.
+
+\textit{Указание.} Предположите обратное: существует $y\in X$ такое, что $f(y)<f(x^\star)$. Рассмотрите
+\[
+x_t=(1-t)x^\star+ty
+\]
+при достаточно малом $t>0$.
+\end{problem}
+
+\begin{problem}[Строгая и сильная выпуклость]
+Для функций
+\[
+f_1(x)=x^2,
+\qquad
+f_2(x)=x^4,
+\qquad
+f_3(x)=e^x
+\]
+на $\R$ определите:
+\begin{enumerate}[label=\alph*)]
+\item какие из них выпуклы;
+\item какие строго выпуклы;
+\item какие сильно выпуклы на всей $\R$;
+\item какие становятся сильно выпуклыми на отрезке $[-R,R]$, $R>0$.
+\end{enumerate}
+Также докажите, что строго выпуклая функция имеет не более одного глобального минимума.
+\end{problem}
+
+\begin{problem}[Операции, сохраняющие выпуклость]
+Пусть $f_1,\ldots,f_m$ --- выпуклые функции и $\alpha_i\ge0$.
+\begin{enumerate}[label=\alph*)]
+\item Докажите, что
+\[
+F(x)=\sum_{i=1}^m\alpha_i f_i(x)
+\]
+выпукла.
+\item Определите, выпукла ли функция
+\[
+F_1(x)=e^x+x^2+|x|.
+\]
+\item Можно ли из пункта a) сделать вывод о выпуклости
+\[
+F_2(x)=x^2-3e^x?
+\]
+Если нет, исследуйте её выпуклость отдельно.
+\item Приведите пример, показывающий, что наличие отрицательного коэффициента в линейной комбинации выпуклых функций не обязательно уничтожает выпуклость.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Ridge как источник сильной выпуклости]
+Рассмотрим
+\[
+f(w)=\frac12\|Xw-y\|_2^2+\frac\lambda2\|w\|_2^2,
+\qquad \lambda>0.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите гессиан и докажите
+\[
+\grad^2f(w)=X^\top X+\lambda I\succeq\lambda I.
+\]
+\item Объясните, почему задача становится сильно выпуклой даже при вырожденной матрице $X^\top X$.
+\item Пусть собственные значения $X^\top X$ равны $0,1,20$. Найдите собственные значения гессиана Ridge-задачи и её число обусловленности как функцию $\lambda$.
+\item Исследуйте пределы полученного числа обусловленности при $\lambda\to0+$ и $\lambda\to\infty$.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Выпуклость логистической регрессии]
+Рассмотрим логистическую потерю
+\[
+\ell(z)=\log(1+e^{-z}).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\ell'(z)$ и $\ell''(z)$.
+\item Докажите, что $\ell$ выпукла.
+\item Объясните, почему для фиксированных $x\in\R^d$ и $y\in\{-1,1\}$ функция
+\[
+w\mapsto \ell(yx^\top w)
+\]
+выпукла по $w$.
+\item Почему сумма таких потерь по объектам остаётся выпуклой?
+\item Обязана ли задача логистической регрессии без регуляризации быть строго выпуклой? Сильно выпуклой на всей $\R^d$? Какие свойства данных здесь существенны?
+\item Что меняется после добавления регуляризатора $\frac\lambda2\|w\|_2^2$, $\lambda>0$?
+\end{enumerate}
+\end{problem}
+
+\end{document}
