@@ -7,7 +7,6 @@ on:
     paths:
       - "lectures/**/*.tex"
       - "lectures/**/generate_figures.py"
-      - "seminars/**/*.tex"
       - "requirements.txt"
       - ".github/workflows/build-pdfs.yml"
   workflow_dispatch:
@@ -107,21 +106,6 @@ jobs:
         run: |
           latexmk -pdf -interaction=nonstopmode -halt-on-error lecture05_convexity.tex
 
-      - name: Build seminar 2
-        working-directory: seminars/seminar02
-        run: |
-          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar02_theory.tex
-
-      - name: Build seminar 3
-        working-directory: seminars/seminar03
-        run: |
-          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar03_theory.tex
-
-      - name: Build seminar 4
-        working-directory: seminars/seminar04
-        run: |
-          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar04_theory.tex
-
       - name: Collect PDFs
         run: |
           mkdir -p pdf
@@ -130,9 +114,6 @@ jobs:
           cp lectures/lecture03/lecture03_quadratic.pdf pdf/
           cp lectures/lecture04/lecture04_conditioning_gd.pdf pdf/
           cp lectures/lecture05/lecture05_convexity.pdf pdf/
-          cp seminars/seminar02/seminar02_theory.pdf pdf/seminar02_theory.pdf
-          cp seminars/seminar03/seminar03_theory.pdf pdf/seminar03_theory.pdf
-          cp seminars/seminar04/seminar04_theory.pdf pdf/seminar04_theory.pdf
 
       - name: Upload PDFs as workflow artifact
         uses: actions/upload-artifact@v4
