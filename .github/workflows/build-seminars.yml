@@ -1,0 +1,99 @@
+name: Build seminar PDFs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "seminars/**/*.tex"
+      - ".github/workflows/build-seminars.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seminar-pdf-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-seminars:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk \
+            texlive-xetex \
+            texlive-latex-extra \
+            texlive-lang-cyrillic \
+            texlive-fonts-recommended \
+            fonts-dejavu-core
+          sudo apt-get clean
+
+      - name: Build seminar 2
+        working-directory: seminars/seminar02
+        run: |
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar02_theory.tex
+
+      - name: Build seminar 3
+        working-directory: seminars/seminar03
+        run: |
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar03_theory.tex
+
+      - name: Build seminar 4
+        working-directory: seminars/seminar04
+        run: |
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error seminar04_theory.tex
+
+      - name: Collect PDFs
+        run: |
+          mkdir -p pdf
+          cp seminars/seminar02/seminar02_theory.pdf pdf/seminar02_theory.pdf
+          cp seminars/seminar03/seminar03_theory.pdf pdf/seminar03_theory.pdf
+          cp seminars/seminar04/seminar04_theory.pdf pdf/seminar04_theory.pdf
+
+      - name: Upload PDFs as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seminar-pdfs
+          path: pdf/seminar*_theory.pdf
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Commit updated seminar PDFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "4189826+github-actions[bot]@users.noreply.github.com"
+
+          git add pdf/seminar02_theory.pdf pdf/seminar03_theory.pdf pdf/seminar04_theory.pdf
+
+          if git diff --cached --quiet; then
+            echo "Compiled seminar PDFs have not changed."
+            exit 0
+          fi
+
+          git commit -m "build: update compiled seminar PDFs"
+
+          for attempt in 1 2 3
+          do
+            git fetch origin main
+            git rebase origin/main
+
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            echo "Push raced with another update to main; retrying..."
+            sleep 2
+          done
+
+          echo "Failed to publish seminar PDFs after 3 attempts."
+          exit 1
