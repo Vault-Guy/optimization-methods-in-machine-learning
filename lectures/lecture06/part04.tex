@@ -1,0 +1,217 @@
+% 46
+\begin{frame}{Плохо обусловленная задача}
+\small
+Пусть
+\[
+\kappa=100.
+\]
+Тогда
+\[
+q=1-\frac1{100}=0.99.
+\]
+За одну итерацию гарантированно исчезает лишь около $1\%$ текущей ошибки.
+
+\centering
+\includegraphics[width=0.62\linewidth]{kappa_rates.pdf}
+\end{frame}
+
+% 47
+\begin{frame}{Сколько итераций нужно в сильно выпуклом случае?}
+\small
+Хотим
+\[
+\left(1-\frac1\kappa\right)^k
+\le
+\varepsilon.
+\]
+Используем
+\[
+1-u\le e^{-u},
+\qquad u\ge0.
+\]
+Тогда
+\[
+\left(1-\frac1\kappa\right)^k
+\le
+e^{-k/\kappa}.
+\]
+\end{frame}
+
+% 48
+\begin{frame}{Откуда возникает логарифм}
+\small
+Чтобы
+\[
+e^{-k/\kappa}\le\varepsilon,
+\]
+достаточно
+\[
+-\frac{k}{\kappa}\le\log\varepsilon.
+\]
+То есть
+\[
+\boxed{
+k\ge\kappa\log\frac1\varepsilon.}
+\]
+В обозначениях порядка:
+\[
+\boxed{
+k=O\!\left(\kappa\log\frac1\varepsilon\right).}
+\]
+\end{frame}
+
+% 49
+\begin{frame}{Сравнение двух классов функций}
+\small
+\centering
+\begin{tabular}{lcc}
+\toprule
+& Выпуклая + гладкая & Сильно выпуклая + гладкая\\
+\midrule
+Ошибка & $O(1/k)$ & $O(q^k)$\\
+До точности $\varepsilon$ & $O(1/\varepsilon)$ & $O(\log(1/\varepsilon))$\\
+Минимум единственен & не обязательно & да\\
+Роль $\kappa$ & не обязательна & определяет скорость\\
+\bottomrule
+\end{tabular}
+
+\vspace{0.7em}
+\includegraphics[width=0.53\linewidth]{complexity_epsilon.pdf}
+\end{frame}
+
+% 50
+\begin{frame}{Связь с квадратичными задачами}
+\small
+Для
+\[
+f(x)=\frac12x^\top Ax-b^\top x,
+\qquad A\succ0,
+\]
+имеем
+\[
+L=\lambda_{\max}(A),
+\qquad
+\mu=\lambda_{\min}(A).
+\]
+Поэтому
+\[
+\boxed{
+\kappa=\frac{L}{\mu}
+=\frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}.
+}
+\]
+Это ровно то же число обусловленности, которое появилось на лекции 3.
+\end{frame}
+
+% 51
+\begin{frame}{Один минимум, разные числа обусловленности}
+\centering
+\includegraphics[width=0.96\linewidth]{gd_trajectories_kappa.pdf}
+
+\vspace{0.1em}
+\small
+Чем более вытянуты линии уровня, тем дольше градиентный спуск избавляется от медленной компоненты ошибки.
+\end{frame}
+
+% 52
+\begin{frame}{Фактическая ошибка и теоретическая граница}
+\centering
+\includegraphics[width=0.76\linewidth]{objective_gaps.pdf}
+
+\vspace{0.15em}
+\small
+Пунктир — гарантированная скорость $\left(1-1/\kappa\right)^k$; сплошные линии — реальный эксперимент.
+\end{frame}
+
+% 53
+\begin{frame}{Зачем используют логарифмический масштаб}
+\small
+Если
+\[
+e_k=Cq^k,
+\qquad 0<q<1,
+\]
+то после логарифмирования
+\[
+\log e_k=\log C+k\log q.
+\]
+Это линейная функция от $k$.
+
+\begin{block}{Практический признак}
+Почти прямая линия ошибки на полулогарифмическом графике — характерный признак геометрической сходимости.
+\end{block}
+\end{frame}
+
+% 54
+\begin{frame}{Теория против эксперимента}
+\centering
+\includegraphics[width=0.73\linewidth]{theory_vs_experiment.pdf}
+
+\vspace{0.15em}
+\small
+Теоретическая оценка строится для всего класса задач и потому часто консервативна. Она должна быть над фактической ошибкой, а не совпадать с ней.
+\end{frame}
+
+% 55
+\begin{frame}{Самопроверка}
+\small
+Пусть
+\[
+L=20,
+\qquad
+\mu=2.
+\]
+Ответьте:
+\begin{enumerate}
+\item Чему равно $\kappa$?
+\item Чему равен множитель $q=1-1/\kappa$?
+\item Во сколько раз примерно уменьшится верхняя оценка ошибки после 20 шагов?
+\end{enumerate}
+
+\[
+\boxed{\kappa=10,\qquad q=0.9,\qquad q^{20}\approx0.12.}
+\]
+\end{frame}
+
+% 56
+\begin{frame}{Карта лекции}
+\small
+Для выпуклой $L$-гладкой функции:
+\[
+\boxed{
+\gap{x_k}
+\le
+\frac{L\norm{x_0-x^\star}^2}{2k}.
+}
+\]
+Добавляем $\mu$-сильную выпуклость:
+\[
+\boxed{
+\gap{x_k}
+\le
+\left(1-\frac\mu L\right)^k\bigl(f(x_0)-f^\star\bigr).
+}
+\]
+Именно отношение
+\[
+\boxed{\kappa=L/\mu}
+\]
+управляет худшей гарантированной геометрической скоростью.
+\end{frame}
+
+% 57
+\begin{frame}{Следующий естественный вопрос}
+\small
+При плохой обусловленности
+\[
+\kappa\gg1
+\]
+обычный градиентный спуск может быть медленным, даже если задача выпуклая и очень хорошо изучена.
+
+\vspace{0.6em}
+\begin{alertblock}{Что можно сделать?}
+Можно ли изменить алгоритм так, чтобы быстрее проходить длинные узкие долины и меньше зависеть от $\kappa$?
+\end{alertblock}
+
+Это приведёт нас к более продвинутым методам оптимизации.
+\end{frame}
