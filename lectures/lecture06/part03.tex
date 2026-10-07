@@ -1,0 +1,284 @@
+% 31
+\begin{frame}{Почему такая скорость может быть медленной}
+\small
+Если хотим улучшить точность в десять раз,
+\[
+\varepsilon
+\longrightarrow
+\frac{\varepsilon}{10},
+\]
+то верхняя оценка числа итераций увеличивается примерно в десять раз.
+
+\begin{exampleblock}{Пример}
+Переход от ошибки $10^{-2}$ к $10^{-3}$ в худшей гарантии требует на порядок большего $k$.
+\end{exampleblock}
+\end{frame}
+
+% 32
+\begin{frame}{Важно: это верхняя оценка, а не точный прогноз}
+\small
+Теорема утверждает
+\[
+f(x_k)-f^\star
+\le
+\frac{C}{k}.
+\]
+Она \textbf{не} утверждает, что
+\[
+f(x_k)-f^\star=\frac{C}{k}.
+\]
+
+\begin{alertblock}{Как читать оценки сходимости}
+Они гарантируют: алгоритм работает \textbf{не хуже определённого сценария} на всём рассматриваемом классе функций. На конкретной задаче он может быть гораздо быстрее.
+\end{alertblock}
+\end{frame}
+
+% 33
+\begin{frame}{Теперь добавим сильную выпуклость}
+\small
+Пусть $f$ одновременно
+\begin{itemize}
+\item $L$-гладкая;
+\item $\mu$-сильно выпуклая.
+\end{itemize}
+Тогда
+\[
+0<\mu\le L.
+\]
+Сильная выпуклость даст связь между величиной градиента и ошибкой по функции — именно её не хватало раньше.
+\end{frame}
+
+% 34
+\begin{frame}{Что именно даёт сильная выпуклость}
+\small
+Для любого $y$:
+\[
+f(y)
+\ge
+f(x)+\grad f(x)^\top(y-x)
++\frac\mu2\norm{y-x}^2.
+\]
+Правая часть — квадратичная функция по $y$.
+
+\begin{block}{Идея}
+Если она является глобальной нижней оценкой $f$, можно минимизировать её и получить нижнюю оценку на само $f^\star$.
+\end{block}
+\end{frame}
+
+% 35
+\begin{frame}{Минимизируем квадратичную нижнюю модель}
+\small
+Положим
+\[
+h=y-x.
+\]
+Нужно минимизировать по $h$
+\[
+q(h)=\grad f(x)^\top h+\frac\mu2\norm{h}^2.
+\]
+Условие стационарности:
+\[
+\grad_h q(h)=\grad f(x)+\mu h=0.
+\]
+Следовательно,
+\[
+\boxed{
+h^\star=-\frac1\mu\grad f(x).
+}
+\]
+\end{frame}
+
+% 36
+\begin{frame}{Минимальное значение модели}
+\small
+Подставляем $h^\star=-\frac1\mu\grad f(x)$:
+\[
+\begin{aligned}
+q(h^\star)
+&=-\frac1\mu\norm{\grad f(x)}^2
++\frac\mu2\frac1{\mu^2}\norm{\grad f(x)}^2\\
+&=-\frac1{2\mu}\norm{\grad f(x)}^2.
+\end{aligned}
+\]
+Поэтому для любого $y$ и, в частности, для минимума:
+\[
+f^\star
+\ge
+f(x)-\frac1{2\mu}\norm{\grad f(x)}^2.
+\]
+\end{frame}
+
+% 37
+\begin{frame}{Сильная выпуклость не позволяет градиенту быть слишком маленьким}
+\small
+Переносим члены:
+\[
+ f(x)-f^\star
+ \le
+ \frac1{2\mu}\norm{\grad f(x)}^2.
+\]
+Или эквивалентно
+\[
+\boxed{
+\norm{\grad f(x)}^2
+\ge
+2\mu\bigl(f(x)-f^\star\bigr).
+}
+\]
+Это ключевой мост между леммой об убывании и ошибкой по функции.
+\end{frame}
+
+% 38
+\begin{frame}{Геометрический смысл предыдущего неравенства}
+\centering
+\includegraphics[width=0.82\linewidth]{gradient_gap_relation.pdf}
+
+\vspace{0.15em}
+\small
+В сильно выпуклой задаче заметное отставание по функции обязано сопровождаться достаточно большим градиентом.
+\end{frame}
+
+% 39
+\begin{frame}{Снова используем лемму об убывании}
+\small
+При шаге $1/L$:
+\[
+\gap{x_{k+1}}
+\le
+\gap{x_k}
+-
+\frac1{2L}\norm{\grad f(x_k)}^2.
+\]
+Из сильной выпуклости:
+\[
+\norm{\grad f(x_k)}^2
+\ge
+2\mu\bigl(f(x_k)-f^\star\bigr).
+\]
+Подставляем нижнюю оценку на градиент в отрицательный член.
+\end{frame}
+
+% 40
+\begin{frame}{Получаем сокращение ошибки за один шаг}
+\small
+\[
+\begin{aligned}
+\gap{x_{k+1}}
+&\le
+\gap{x_k}
+-
+\frac1{2L}\cdot2\mu\bigl(f(x_k)-f^\star\bigr)\\
+&=
+\left(1-\frac\mu L\right)\bigl(f(x_k)-f^\star\bigr).
+\end{aligned}
+\]
+То есть
+\[
+\boxed{
+\gap{x_{k+1}}
+\le
+\left(1-\frac\mu L\right)\bigl(f(x_k)-f^\star\bigr).
+}
+\]
+Каждая итерация сокращает верхнюю оценку на один и тот же множитель.
+\end{frame}
+
+% 41
+\begin{frame}{Повторяем неравенство $k$ раз}
+\small
+Последовательно:
+\[
+\gap{x_1}
+\le
+q\bigl(f(x_0)-f^\star\bigr),
+\]
+\[
+\gap{x_2}
+\le
+q\bigl(f(x_1)-f^\star\bigr)
+\le
+q^2\bigl(f(x_0)-f^\star\bigr),
+\]
+где
+\[
+q=1-\frac\mu L.
+\]
+Поэтому
+\[
+\boxed{
+\gap{x_k}
+\le
+\left(1-\frac\mu L\right)^k\bigl(f(x_0)-f^\star\bigr).
+}
+\]
+\end{frame}
+
+% 42
+\begin{frame}{Теорема о линейной сходимости}
+\small
+\begin{block}{Теорема}
+Пусть $f$ $\mu$-сильно выпукла и $L$-гладка. Для GD с шагом $1/L$:
+\[
+\boxed{
+ f(x_k)-f^\star
+ \le
+ \left(1-\frac\mu L\right)^k
+ \bigl(f(x_0)-f^\star\bigr).
+}
+\]
+\end{block}
+
+\begin{alertblock}{Терминология}
+«Линейная сходимость» не означает движение по прямой. Это стандартное название геометрического закона $e_{k+1}\le q e_k$, где $q<1$.
+\end{alertblock}
+\end{frame}
+
+% 43
+\begin{frame}{$1/k$ против геометрической скорости}
+\centering
+\includegraphics[width=0.88\linewidth]{rate_preview.pdf}
+
+\vspace{0.15em}
+\small
+Геометрическое уменьшение особенно хорошо видно на логарифмической шкале: оно становится почти прямой линией.
+\end{frame}
+
+% 44
+\begin{frame}{Число обусловленности снова появляется}
+\small
+Определим
+\[
+\boxed{\kappa=\frac{L}{\mu}.}
+\]
+Тогда множитель сокращения
+\[
+q
+=1-\frac\mu L
+=1-\frac1\kappa.
+\]
+Следовательно,
+\[
+\boxed{
+\gap{x_k}
+\le
+\left(1-\frac1\kappa\right)^k\bigl(f(x_0)-f^\star\bigr).
+}
+\]
+\end{frame}
+
+% 45
+\begin{frame}{Хорошо обусловленная задача}
+\small
+Пусть
+\[
+\kappa=2.
+\]
+Тогда
+\[
+q=1-\frac12=0.5.
+\]
+То есть гарантированная верхняя оценка ошибки делится примерно пополам на каждой итерации:
+\[
+1,\;0.5,\;0.25,\;0.125,\ldots
+\]
+\end{frame}
