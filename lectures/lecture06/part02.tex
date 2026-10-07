@@ -1,0 +1,321 @@
+% 16
+\begin{frame}{Шаг 1: применяем гладкость}
+\small
+К точкам $x_k$ и $x_{k+1}$:
+\[
+\begin{aligned}
+f(x_{k+1})
+\le{}&
+f(x_k)
++\grad f(x_k)^\top(x_{k+1}-x_k)\\
+&+\frac L2\norm{x_{k+1}-x_k}^2.
+\end{aligned}
+\]
+Вычитаем $f^\star$:
+\[
+\gap{x_{k+1}}
+\le
+\gap{x_k}
++\grad f(x_k)^\top(x_{k+1}-x_k)
++\frac L2\norm{x_{k+1}-x_k}^2.
+\]
+\end{frame}
+
+% 17
+\begin{frame}{Шаг 2: используем выпуклость}
+\small
+Из слайда 11:
+\[
+\gap{x_k}
+\le
+\grad f(x_k)^\top(x_k-x^\star).
+\]
+Подставляем:
+\[
+\begin{aligned}
+\gap{x_{k+1}}
+\le{}&
+\grad f(x_k)^\top(x_k-x^\star)\\
+&+\grad f(x_k)^\top(x_{k+1}-x_k)\\
+&+\frac L2\norm{x_{k+1}-x_k}^2.
+\end{aligned}
+\]
+\end{frame}
+
+% 18
+\begin{frame}{Два скалярных произведения объединяются}
+\small
+Первые два члена имеют общий градиент:
+\[
+\begin{aligned}
+&\grad f(x_k)^\top(x_k-x^\star)
++\grad f(x_k)^\top(x_{k+1}-x_k)\\
+&\qquad=
+\grad f(x_k)^\top(x_{k+1}-x^\star).
+\end{aligned}
+\]
+Поэтому
+\[
+\boxed{
+\gap{x_{k+1}}
+\le
+\grad f(x_k)^\top(x_{k+1}-x^\star)
++\frac L2\norm{x_{k+1}-x_k}^2.
+}
+\]
+\end{frame}
+
+% 19
+\begin{frame}{Шаг 3: заменяем градиент через шаг}
+\small
+Используем
+\[
+\grad f(x_k)=L(x_k-x_{k+1}).
+\]
+Получаем
+\[
+\begin{aligned}
+\gap{x_{k+1}}
+\le{}&
+L(x_k-x_{k+1})^\top(x_{k+1}-x^\star)\\
+&+\frac L2\norm{x_k-x_{k+1}}^2.
+\end{aligned}
+\]
+Осталось распознать чисто геометрическое тождество.
+\end{frame}
+
+% 20
+\begin{frame}{Трёхточечное тождество}
+\small
+Для любых $a,b,c$:
+\[
+\boxed{
+2(a-b)^\top(b-c)
+=
+\norm{a-c}^2
+-\norm{a-b}^2
+-\norm{b-c}^2.
+}
+\]
+В нашем случае:
+\[
+a=x_k,
+\qquad
+b=x_{k+1},
+\qquad
+c=x^\star.
+\]
+\end{frame}
+
+% 21
+\begin{frame}{Почему тождество верно}
+\small
+Заметим:
+\[
+a-c=(a-b)+(b-c).
+\]
+Тогда
+\[
+\begin{aligned}
+\norm{a-c}^2
+&=\norm{a-b}^2+\norm{b-c}^2\\
+&\quad+2(a-b)^\top(b-c).
+\end{aligned}
+\]
+Перенос двух первых слагаемых даёт нужную формулу.
+
+\begin{block}{Никакой новой теории}
+Это просто раскрытие квадрата нормы суммы двух векторов.
+\end{block}
+\end{frame}
+
+% 22
+\begin{frame}{Ключевое неравенство для выпуклого случая}
+\small
+Подставляя трёхточечное тождество, получаем
+\[
+\begin{aligned}
+\gap{x_{k+1}}
+\le
+\frac L2\Bigl(&
+\norm{x_k-x^\star}^2
+-\norm{x_{k+1}-x^\star}^2\\
+&-\norm{x_k-x_{k+1}}^2\Bigr)
++\frac L2\norm{x_k-x_{k+1}}^2.
+\end{aligned}
+\]
+Последние два члена сокращаются:
+\[
+\boxed{
+\gap{x_{k+1}}
+\le
+\frac L2
+\left(
+\norm{x_k-x^\star}^2-
+\norm{x_{k+1}-x^\star}^2
+\right).
+}
+\]
+\end{frame}
+
+% 23
+\begin{frame}{Теперь складываем неравенства}
+\small
+Для $k=0,\ldots,N-1$:
+\[
+\sum_{k=0}^{N-1}
+\bigl(f(x_{k+1})-f^\star\bigr)
+\le
+\frac L2
+\sum_{k=0}^{N-1}
+\left(
+\norm{x_k-x^\star}^2-
+\norm{x_{k+1}-x^\star}^2
+\right).
+\]
+Справа возникает телескопическая сумма.
+\end{frame}
+
+% 24
+\begin{frame}{Телескопическая сумма}
+\centering
+\includegraphics[width=0.88\linewidth]{telescoping_sum.pdf}
+
+\vspace{0.2em}
+\small
+В результате остаются только начальное и конечное расстояния.
+\end{frame}
+
+% 25
+\begin{frame}{После суммирования}
+\small
+Получаем
+\[
+\sum_{k=1}^{N}
+\bigl(f(x_k)-f^\star\bigr)
+\le
+\frac L2
+\left(
+\norm{x_0-x^\star}^2-
+\norm{x_N-x^\star}^2
+\right).
+\]
+Поскольку норма неотрицательна,
+\[
+\boxed{
+\sum_{k=1}^{N}
+\bigl(f(x_k)-f^\star\bigr)
+\le
+\frac L2
+\norm{x_0-x^\star}^2.
+}
+\]
+\end{frame}
+
+% 26
+\begin{frame}{Используем монотонность значений функции}
+\small
+По лемме об убывании
+\[
+f(x_N)
+\le
+f(x_{N-1})
+\le\cdots\le
+f(x_1).
+\]
+Значит каждое из первых $N$ отклонений не меньше последнего:
+\[
+ f(x_k)-f^\star
+ \ge
+ f(x_N)-f^\star.
+\]
+Поэтому
+\[
+\boxed{
+N\bigl(f(x_N)-f^\star\bigr)
+\le
+\sum_{k=1}^{N}
+\bigl(f(x_k)-f^\star\bigr).
+}
+\]
+\end{frame}
+
+% 27
+\begin{frame}{Теорема: скорость GD для выпуклой гладкой функции}
+\small
+\begin{block}{Теорема}
+Пусть $f$ выпукла и $L$-гладка, а
+\[
+x_{k+1}=x_k-\frac1L\grad f(x_k).
+\]
+Тогда для любого $N\ge1$
+\[
+\boxed{
+ f(x_N)-f^\star
+ \le
+ \frac{L\norm{x_0-x^\star}^2}{2N}.
+}
+\]
+\end{block}
+Это и есть скорость порядка $O(1/N)$.
+\end{frame}
+
+% 28
+\begin{frame}{Доказательство теоремы — в трёх строках}
+\footnotesize
+Из ключевого неравенства:
+\[
+\sum_{k=1}^{N}
+\bigl(f(x_k)-f^\star\bigr)
+\le
+\frac L2\norm{x_0-x^\star}^2.
+\]
+Из монотонности:
+\[
+N\bigl(f(x_N)-f^\star\bigr)
+\le
+\sum_{k=1}^{N}
+\bigl(f(x_k)-f^\star\bigr).
+\]
+Следовательно,
+\[
+N\bigl(f(x_N)-f^\star\bigr)
+\le
+\frac L2\norm{x_0-x^\star}^2,
+\]
+откуда делением на $N$ получается утверждение.
+\end{frame}
+
+% 29
+\begin{frame}{Что означает $O(1/k)$?}
+\centering
+\includegraphics[width=0.70\linewidth]{one_over_k.pdf}
+
+\vspace{0.2em}
+\small
+При удвоении числа итераций гарантированная верхняя оценка примерно уменьшается вдвое.
+\end{frame}
+
+% 30
+\begin{frame}{Сколько итераций нужно для точности $\varepsilon$?}
+\small
+Хотим обеспечить
+\[
+f(x_k)-f^\star\le\varepsilon.
+\]
+Из теоремы достаточно потребовать
+\[
+\frac{L\norm{x_0-x^\star}^2}{2k}
+\le
+\varepsilon.
+\]
+Следовательно,
+\[
+\boxed{
+k
+\ge
+\frac{L\norm{x_0-x^\star}^2}{2\varepsilon}.
+}
+\]
+То есть сложность по точности — порядка $O(1/\varepsilon)$.
+\end{frame}
