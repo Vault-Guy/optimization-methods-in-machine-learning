@@ -1,0 +1,892 @@
+%!TEX TS-program = pdflatex
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{cmap}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array}
+\usepackage{etoolbox}
+\usepackage{PTSans}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand{\rmdefault}{\sfdefault}
+\newbool{russian}\booltrue{russian}
+\usepackage{HSE-theme/beamerthemeHSE}
+\hypersetup{bookmarks=false}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamerfont{frametitle}{size=\Large}
+\setbeamerfont{framesubtitle}{size=\small}
+\setbeamerfont{block title}{size=\normalsize}
+\setbeamerfont{block body}{size=\small}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\grad}{\nabla}
+\newcommand{\jac}{J}
+\newcommand{\pic}[2][.83]{\includegraphics[width=#1\linewidth]{#2}}
+\title[Методы оптимизации в ML]{Методы оптимизации\\в машинном обучении}
+\subtitle{Лекция 7. Матричное и автоматическое дифференцирование}
+\author[Н. Лукьяненко]{Никита Лукьяненко}
+\institute{Совместная программа СМОЛ ГУ и ФКН НИУ ВШЭ}
+\date{2026/27 учебный год}
+\begin{document}
+
+% 01
+\frame[plain]{\titlepage}
+
+% 02
+\begin{frame}{Градиентный спуск: откуда берётся градиент?}
+\small
+За шесть лекций мы научились исследовать метод
+\[
+\boxed{x_{k+1}=x_k-\alpha_k\grad f(x_k).}
+\]
+Мы обсуждали кривизну, число обусловленности и скорость сходимости.
+
+\begin{alertblock}{Скрытая вычислительная задача}
+Каждая итерация требует вычислить $\grad f(x_k)$. Что делать, если $f$ включает тысячи параметров и промежуточных операций?
+\end{alertblock}
+\end{frame}
+
+% 03
+\begin{frame}{Функцию просто вычислить, но сложно дифференцировать}
+\small
+Для $f(x)=x^2+\sin x$ производная очевидна. Но даже композиция
+\[
+ f(x)=\bigl(\sin(x^2+e^x)+x^3\bigr)^2
+\]
+выглядит намного менее дружелюбно после полного раскрытия производной.
+
+\centering
+\pic[.84]{long_composition.pdf}
+
+\small
+\vspace{.2em}
+\textbf{Идея:} дифференцировать элементарные операции по отдельности.
+\end{frame}
+
+% 04
+\begin{frame}{Автоматическое дифференцирование: точное определение}
+\footnotesize
+\begin{block}{Определение}
+\textbf{Автоматическое дифференцирование} (АД) — это вычисление производных функции, заданной последовательностью элементарных операций, посредством систематического применения \textbf{правила цепочки} к каждой операции.
+\end{block}
+\vspace{.25em}
+\begin{itemize}
+\item \textbf{Символьный подход:} строим формулу производной как математическое выражение.
+\item \textbf{Численный подход:} приближаем производную конечными разностями с шагом $h$.
+\item \textbf{Автоматический подход:} на конкретных входных данных вычисляем значения операций и их производные по точным аналитическим правилам.
+\end{itemize}
+\begin{alertblock}{Важно}
+АД не использует конечные разности и не требует раскрывать полную символическую формулу. Точность всё равно ограничена машинной арифметикой.
+\end{alertblock}
+\end{frame}
+% 05
+\begin{frame}{Карта сегодняшней лекции}
+\small
+\[
+\boxed{\text{Дифференциал}}
+\Longrightarrow
+\boxed{\text{Правило цепочки}}
+\]
+\[
+\boxed{\text{Вычислительный граф}}
+\Longrightarrow
+\boxed{\text{Автоматический градиент}}.
+\]
+
+В конце лекции самостоятельно пройдём по графу функции
+\[
+\boxed{f(x,y)=(xy+\sin x)^2}
+\]
+и получим производные в двух разных режимах.
+\end{frame}
+
+% 06
+\begin{frame}{Возвращаемся к линейному приближению}
+\small
+Из лекции №2 для дифференцируемой $f:\R^d\to\R$:
+\[
+f(x+h)=f(x)+\grad f(x)^\top h+o(\norm{h}).
+\]
+\centering
+\pic[.73]{differential_tangent.pdf}
+\end{frame}
+
+% 07
+\begin{frame}{Дифференциал — главная линейная часть изменения}
+\small
+Приращение $dx$ может быть малым вектором произвольного направления. Определяем дифференциал как линейную по $dx$ часть приращения:
+\[
+\boxed{df=\grad f(x)^\top dx.}
+\]
+Важно различать:
+\[
+ f(x+dx)-f(x)=df+o(\norm{dx}).
+\]
+\begin{alertblock}{Не путать}
+$df$ не обязано совпадать с настоящим конечным приращением функции. Совпадает лишь его линейная часть.
+\end{alertblock}
+\end{frame}
+
+% 08
+\begin{frame}{Пример: как прочитать градиент из дифференциала}
+\small
+Пусть $f(x,y)=x^2+3xy$. Тогда
+\[
+ df=(2x+3y)\,dx+3x\,dy.
+\]
+Соберём коэффициенты в столбец:
+\[
+ df=
+\underbrace{\begin{pmatrix}2x+3y&3x\end{pmatrix}}_{\grad f(x,y)^\top}
+\begin{pmatrix}dx\\dy\end{pmatrix}.
+\]
+\begin{block}{Рабочий приём}
+Привести $df$ к форме $g^\top dx$, после чего прочитать $\grad f=g$.
+\end{block}
+\end{frame}
+
+% 09
+\begin{frame}{А если результат — целый вектор?}
+\small
+Пусть $g:\R^d\to\R^m$, тогда дифференциал тоже является вектором:
+\[
+ dg=J_g(x)\,dx,
+\]
+где $J_g(x)$ — матрица линейного приближения.
+
+\[
+\underbrace{dg}_{m\times1}
+=\underbrace{J_g(x)}_{m\times d}
+\underbrace{dx}_{d\times1}.
+\]
+Определение матрицы Якоби подробно появится чуть позже.
+\end{frame}
+
+% 10
+\begin{frame}{Проверка размерностей — лучший способ найти ошибку}
+\centering
+\pic[.82]{matrix_dimensions.pdf}
+
+\small
+Для любого дифференцируемого отображения $g:\R^d\to\R^m$ размерность якобиана определяется автоматически: $m\times d$.
+
+\begin{alertblock}{Правило}
+Если произведение матриц не определено или результат имеет неверную размерность, формула производной записана неправильно.
+\end{alertblock}
+\end{frame}
+
+% 11
+\begin{frame}{Аффинное преобразование: $z=Ax+b$}
+\small
+Возьмём $A\in\R^{m\times d}$, $x\in\R^d$. Тогда
+\[
+z(x+dx)-z(x)=A(x+dx)+b-(Ax+b)=A\,dx.
+\]
+Следовательно,
+\[
+\boxed{dz=A\,dx,\qquad J_z(x)=A.}
+\]
+Матрица $A$ и есть линейная часть изменения $z$. Никаких координатных сумм не потребовалось.
+\end{frame}
+
+% 12
+\begin{frame}{Квадратичная потеря: разделим вычисление на операции}
+\small
+Пусть
+\[
+\boxed{f(x)=\frac12\norm{Ax-b}_2^2.}
+\]
+Введём промежуточный остаток $r=Ax-b$, тогда
+\[
+ f(x)=\frac12r^\top r.
+\]
+Теперь достаточно продифференцировать \textbf{две простые операции}:
+\[
+ x\longmapsto r,\qquad r\longmapsto \tfrac12r^\top r.
+\]
+\end{frame}
+
+% 13
+\begin{frame}{Дифференциал квадрата нормы}
+\small
+Для $r\in\R^m$ раскрываем квадрат приращения:
+\[
+\begin{aligned}
+\tfrac12(r+dr)^\top(r+dr)
+&=\tfrac12r^\top r+r^\top dr+\tfrac12\norm{dr}^2.
+\end{aligned}
+\]
+Линейная часть равна
+\[
+\boxed{df=r^\top dr.}
+\]
+Для $r=Ax-b$ уже известно
+\[
+\boxed{dr=A\,dx.}
+\]
+\end{frame}
+
+% 14
+\begin{frame}{Первое доказательство: градиент квадратичной потери}
+\small
+\begin{block}{Утверждение}
+Для $f(x)=\frac12\norm{Ax-b}_2^2$ выполнено
+\[
+\boxed{\grad f(x)=A^\top(Ax-b).}
+\]
+\end{block}
+\textbf{Доказательство:}
+\[
+\begin{aligned}
+df&=r^\top dr=r^\top A\,dx\\
+  &=(A^\top r)^\top dx.
+\end{aligned}
+\]
+Сопоставляя с $df=\grad f(x)^\top dx$, получаем требуемое. $\square$
+\end{frame}
+
+% 16
+\begin{frame}{От ошибки одного объекта — к эмпирическому риску}
+\small
+Даны наблюдения $(x_i,y_i)$, $i=1,\ldots,n$, и линейный прогноз $\hat y_i=w^\top x_i$.
+Для одного объекта возьмём квадратичную потерю
+\[
+\ell_i(w)=\frac12(w^\top x_i-y_i)^2.
+\]
+\begin{block}{Эмпирический риск}
+Средняя потеря \emph{на наблюдённой выборке}:
+\[
+\boxed{\widehat R_n(w)=\frac1n\sum_{i=1}^n\ell_i(w).}
+\]
+\end{block}
+В отличие от теоретического риска $R(w)=\mathbb E\,\ell(w;(X,Y))$ — среднего по неизвестному распределению данных — здесь усредняем только имеющиеся наблюдения.
+\end{frame}
+% 17
+\begin{frame}{Как отдельные ошибки влияют на каждый параметр}
+\small
+Обозначим ошибку предсказания на объекте $i$ через
+\[
+r_i=w^\top x_i-y_i.
+\]
+Тогда градиент отдельной потери:
+\[
+\grad\ell_i(w)=r_i x_i.
+\]
+И градиент эмпирического риска — среднее \textbf{векторов}:
+\[
+\boxed{\grad\widehat R_n(w)=\frac1n\sum_{i=1}^n r_i x_i.}
+\]
+Каждая ошибка $r_i$ умножается на вектор признаков $x_i$: так она даёт вклад в \textbf{каждую координату} градиента.
+\end{frame}
+% 18
+\begin{frame}{Матричная запись градиента эмпирического риска}
+\small
+В матрице $X\in\R^{n\times d}$ строки — это векторы признаков $x_i^\top$. Остатки собираются в столбец
+\[
+r=Xw-y\in\R^n.
+\]
+Поэтому средний риск и его градиент записываются компактно:
+\[
+\widehat R_n(w)=\frac{1}{2n}\norm{Xw-y}_2^2,
+\qquad
+\boxed{\grad\widehat R_n(w)=\frac1nX^\top r.}
+\]
+{\centering
+\pic[.91]{least_squares_pipeline.pdf}\par}
+\vspace{.35em}
+{\raggedright\footnotesize
+$X^\top$ переводит $n$ ошибок объектов в $d$ компонент градиента; $1/n$ усредняет по выборке.\par}
+\end{frame}
+% 19
+\begin{frame}{Добавим регуляризацию}
+\small
+Рассмотрим
+\[
+F_\lambda(w)=\frac1{2n}\norm{Xw-y}^2+\frac\lambda2\norm{w}^2.
+\]
+Из линейности дифференциала:
+\[
+\boxed{\grad F_\lambda(w)=\frac1nX^\top(Xw-y)+\lambda w.}
+\]
+Вклад штрафа прибавляется к уже найденному градиенту основной потери.
+\end{frame}
+
+% 20
+\begin{frame}{Логистическая потеря: производная по одному аргументу}
+\small
+Пусть
+\[
+\ell(z)=\log(1+e^{-z}).
+\]
+Обычное правило цепочки:
+\[
+\ell'(z)=\frac{-e^{-z}}{1+e^{-z}}
+=\boxed{-\frac1{1+e^z}}.
+\]
+Это локальная производная \textbf{по скалярному} аргументу $z$.
+\end{frame}
+
+% 21
+\begin{frame}{Логистическая потеря: откуда берётся аргумент}
+\small
+Для наблюдения $(x_i,y_i)$ с $y_i\in\{-1,1\}$:
+\[
+ z=y_iw^\top x_i,
+\quad \ell_i(w)=\log(1+e^{-z}).
+\]
+Функция устроена как композиция:
+\[
+ w\longmapsto z\longmapsto\ell(z).
+\]
+Поскольку $z$ линейна по $w$,
+\[
+\boxed{\grad_w z=y_ix_i.}
+\]
+\end{frame}
+
+% 22
+\begin{frame}{Градиент логистической потери}
+\small
+По правилу цепочки:
+\[
+\grad_w \ell_i(w)=\ell'(z)\grad_w z.
+\]
+Подставим обе уже найденные производные:
+\[
+\boxed{
+\grad_w\ell_i(w)
+=-\frac{y_ix_i}{1+e^{y_iw^\top x_i}}.
+}
+\]
+Никакой новой сложной техники здесь нет: только композиция двух функций.
+\end{frame}
+
+% 23
+\begin{frame}{Общая структура: от параметров до потери}
+\small
+В рассмотренных моделях вычисление имеет вид
+\[
+\boxed{\text{параметры}}
+\ \longrightarrow\
+\boxed{\text{прогноз}}
+\ \longrightarrow\
+\boxed{\text{потеря}}
+\ \longrightarrow\
+\boxed{\text{средний риск}}.
+\]
+Чтобы продифференцировать весь эмпирический риск, достаточно знать производную \textbf{каждой отдельной операции} и правило их композиции.
+\begin{alertblock}{Следующая цель}
+Найти универсальное правило для отображений между пространствами \emph{разных размерностей}.
+\end{alertblock}
+\end{frame}
+% 24
+\begin{frame}{Привычное правило цепочки}
+\small
+Для одномерных функций:
+\[
+\boxed{(h\circ g)'(x)=h'(g(x))g'(x).}
+\]
+Например, для $f(x,y)=\sin(xy)$ вначале вычисляем $g(x,y)=xy$, затем $h(z)=\sin z$.
+
+\begin{block}{Вопрос}
+А если промежуточный результат — \textbf{вектор}, а не число?
+\end{block}
+\end{frame}
+
+% 25
+\begin{frame}{Один параметр может влиять по двум путям}
+\small
+Введём
+\[
+ a=xy,\qquad b=\sin x,\qquad f=a+b.
+\]
+Переменная $x$ влияет на $f$ и через $a$, и через $b$:
+\[
+\frac{\partial f}{\partial x}
+=\frac{\partial f}{\partial a}\frac{\partial a}{\partial x}
++\frac{\partial f}{\partial b}\frac{\partial b}{\partial x}
+=y+\cos x.
+\]
+Эти два вклада необходимо \textbf{сложить}.
+\end{frame}
+
+% 26
+\begin{frame}{Определение матрицы Якоби}
+\small
+\begin{block}{Определение}
+Для дифференцируемой $g:\R^d\to\R^m$ её матрица Якоби — матрица всех первых частных производных:
+\[
+\boxed{
+J_g(x)=
+\begin{pmatrix}
+\frac{\partial g_1}{\partial x_1}&\cdots&\frac{\partial g_1}{\partial x_d}\\
+\vdots&\ddots&\vdots\\
+\frac{\partial g_m}{\partial x_1}&\cdots&\frac{\partial g_m}{\partial x_d}
+\end{pmatrix}.}
+\]
+\end{block}
+У матрицы $m$ строк (по выходам) и $d$ столбцов (по входам).
+\end{frame}
+
+% 27
+\begin{frame}{Пример вычисления матрицы Якоби}
+\small
+Пусть
+\[
+g(x,y)=\begin{pmatrix}xy\\\sin x\end{pmatrix}.
+\]
+Производные первой компоненты: $y$, $x$; второй: $\cos x$, $0$. Итак,
+\[
+\boxed{J_g(x,y)=\begin{pmatrix}y&x\\\cos x&0\end{pmatrix}.}
+\]
+Строка отвечает за одну \textbf{выходную} координату.
+\end{frame}
+
+% 28
+\begin{frame}{Теорема: многомерное правило цепочки}
+\small
+\begin{block}{Теорема}
+Пусть $g:\R^d\to\R^m$ дифференцируема в $x$, а $h:\R^m\to\R^p$ дифференцируема в $g(x)$. Тогда
+\[
+\boxed{J_{h\circ g}(x)=J_h(g(x))\,J_g(x).}
+\]
+\end{block}
+\centering
+\pic[.79]{chain_dimensions.pdf}
+\end{frame}
+
+% 29
+\begin{frame}{Доказательство правила цепочки: два линейных приближения}
+\small
+Запишем композицию как $x\mapsto z=g(x)\mapsto h(z)$.
+Если аргумент меняется на $\Delta x$, промежуточное значение меняется на
+\[
+\Delta z=g(x+\Delta x)-g(x)
+=J_g(x)\Delta x+r_g(\Delta x),
+\]
+где $r_g(\Delta x)=o(\norm{\Delta x})$.
+Для второй функции:
+\[
+h(z+\Delta z)-h(z)
+=J_h(z)\Delta z+r_h(\Delta z),
+\]
+где $r_h(\Delta z)=o(\norm{\Delta z})$.
+\begin{block}{Следующий шаг}
+Подставим первое приближение в другое и соберём коэффициент при $\Delta x$.
+\end{block}
+\end{frame}
+
+% 29a
+\begin{frame}{Доказательство правила цепочки: подстановка}
+\footnotesize
+Подставим $\Delta z=J_g(x)\Delta x+r_g(\Delta x)$:
+\[
+\begin{aligned}
+\Delta(h\circ g)
+&=J_h(g(x))J_g(x)\Delta x\\
+&\quad+J_h(g(x))r_g(\Delta x)+r_h(\Delta z).
+\end{aligned}
+\]
+Поскольку $\Delta z=O(\norm{\Delta x})$, оба остаточных члена составляют $o(\norm{\Delta x})$. Значит,
+\[
+\boxed{J_{h\circ g}(x)=J_h(g(x))J_g(x).}
+\]
+\begin{alertblock}{Проверка размерностей}
+$(p\times m)(m\times d)=p\times d$: промежуточное пространство $\R^m$ «сокращается».
+\end{alertblock}
+\end{frame}
+% 30
+\begin{frame}{Для скалярного выхода правило становится проще}
+\small
+Если $h:\R^m\to\R$, то $J_h=\grad h^\top$ — строка. Получаем
+\[
+J_{h\circ g}(x)=\grad h(g(x))^\top J_g(x).
+\]
+Транспонируем, чтобы получить градиент-столбец:
+\[
+\boxed{\grad(h\circ g)(x)=J_g(x)^\top\grad h(g(x)).}
+\]
+\textbf{Этот порядок матричного произведения} ляжет в основу обратного режима автоматического дифференцирования.
+\end{frame}
+
+% 31
+\begin{frame}{Применение правила цепочки к знакомой функции}
+\small
+Пусть
+\[
+g(x,y)=\begin{pmatrix}xy\\\sin x\end{pmatrix},\qquad
+h(u,v)=(u+v)^2.
+\]
+Тогда
+\[
+\grad h(u,v)=2(u+v)\begin{pmatrix}1\\1\end{pmatrix},
+\quad
+J_g(x,y)^\top=\begin{pmatrix}y&\cos x\\x&0\end{pmatrix}.
+\]
+Следовательно,
+\[
+\boxed{\grad(h\circ g)(x,y)=2(xy+\sin x)
+\begin{pmatrix}y+\cos x\\x\end{pmatrix}.}
+\]
+\end{frame}
+
+% 33
+\begin{frame}{Зададим сложную функцию как последовательность операций}
+\small
+Будем исследовать одну функцию до конца лекции:
+\[
+\boxed{f(x,y)=(xy+\sin x)^2.}
+\]
+Введём промежуточные значения
+\[
+a=xy,\qquad b=\sin x,\qquad c=a+b,\qquad f=c^2.
+\]
+Вычислительный граф хранит \textbf{зависимости} между этими операциями.
+\end{frame}
+
+% 34
+\begin{frame}{Вычислительный граф}
+\centering
+\pic[.93]{graph_overview.pdf}
+
+\small
+Узлы — результаты элементарных операций, стрелки — зависимости. Порядок вычислений определяется направлением стрелок.
+\end{frame}
+
+% 35
+\begin{frame}{Прямой проход: начальные значения}
+\small
+Пусть $x=1$, $y=2$. Сначала значения известны только во входных узлах.
+\centering
+\pic[.90]{graph_forward_start.pdf}
+\end{frame}
+
+% 36
+\begin{frame}{Прямой проход: промежуточные вычисления}
+\small
+Следующий уровень можно вычислить независимо:
+\[
+a=xy=2,\qquad b=\sin x=\sin1.
+\]
+\centering
+\pic[.82]{graph_forward_middle.pdf}
+\end{frame}
+
+% 37
+\begin{frame}{Прямой проход: вычисляем конечный результат}
+\small
+Теперь $c=2+\sin1$, затем $f=(2+\sin1)^2$.
+\centering
+\pic[.90]{graph_forward_values.pdf}
+\end{frame}
+
+% 38
+\begin{frame}{Локальные производные в каждом узле}
+\small
+Почти все необходимые производные элементарны:
+\[
+\begin{array}{ll}
+a=xy:& a_x=y,\quad a_y=x,\\[2pt]
+b=\sin x:& b_x=\cos x,\\[2pt]
+c=a+b:& c_a=c_b=1,\\[2pt]
+f=c^2:& f_c=2c.
+\end{array}
+\]
+\begin{block}{Наблюдение}
+Вычислить \emph{одну локальную производную} гораздо проще, чем сразу получить градиент всей длинной композиции.
+\end{block}
+\end{frame}
+
+% 39
+\begin{frame}{Два пути влияния одного параметра}
+\centering
+\pic[.92]{two_paths.pdf}
+
+\small
+\[
+\boxed{\frac{\partial f}{\partial x}=2c(y+\cos x),\qquad
+\frac{\partial f}{\partial y}=2cx.}
+\]
+\end{frame}
+
+% 40
+\begin{frame}{Зачем нам два способа проходить по графу?}
+\small
+Пусть у функции $d$ входных параметров, а на выходе $m$ чисел:
+\[
+F:\R^d\longrightarrow\R^m.
+\]
+Нужно уметь считать, \textbf{как малое изменение входов отражается на выходах}.
+\begin{itemize}
+\item В \textbf{прямом режиме} выбираем изменение входов $v$ и отслеживаем, как оно проходит через операции. Получаем $J_F(x)v$.
+\item В \textbf{обратном режиме} выбираем скалярную комбинацию выходов $u^\top F$ и выясняем, \emph{через какие промежуточные узлы} она зависит от входов. Получаем $J_F(x)^\top u$.
+\end{itemize}
+\begin{alertblock}{Что такое «вклад»?}
+Если вход влияет на результат двумя путями, его производная равна \textbf{сумме вкладов} каждого пути по правилу цепочки.
+\end{alertblock}
+\end{frame}
+
+% 40a
+\begin{frame}{Два режима: что распространяется по графу?}
+{\centering
+\pic[.86]{forward_reverse_compare.pdf}\par}
+\vspace{.25em}
+{\raggedright\small
+\textbf{Прямой проход:} от входов к выходу — вычисляем значения и направленные производные.\par
+\vspace{.35em}
+\textbf{Обратный проход:} после вычисления значений идём от выхода к входам и накапливаем производные.\par}
+\end{frame}
+% 41
+\begin{frame}{Прямой режим: что означает точка над переменной?}
+\small
+Вообразим, что исходные аргументы меняются с параметром $t$:
+\[
+x(t)=x+t v_x,\qquad y(t)=y+t v_y.
+\]
+Выбранное направление — это вектор $v=(v_x,v_y)$. \textbf{Точкой} обозначаем скорость изменения узла при $t=0$:
+\[
+\boxed{\dot u:=\left.\frac{du(t)}{dt}\right|_{t=0}.}
+\]
+Например, для $a(t)=x(t)y(t)$:
+\[
+\dot x=v_x,\quad\dot y=v_y,
+\qquad\boxed{\dot a=y\dot x+x\dot y.}
+\]
+Если хотим $\partial f/\partial x$, берём $v=(1,0)$: меняется только $x$, а $y$ остаётся постоянным.
+\end{frame}
+% 42
+\begin{frame}{Прямой режим: локальные правила}
+\small
+\[
+\begin{array}{lll}
+a=u+v &\Longrightarrow& \dot a=\dot u+\dot v,\\[7pt]
+a=uv &\Longrightarrow& \dot a=v\dot u+u\dot v,\\[7pt]
+a=\sin u &\Longrightarrow& \dot a=\cos(u)\dot u,\\[7pt]
+a=u^2 &\Longrightarrow& \dot a=2u\dot u.
+\end{array}
+\]
+Это ровно знакомые правила дифференцирования, применяемые при обходе графа.
+\end{frame}
+
+% 43
+\begin{frame}{Прямой режим: находим $\partial f/\partial x$}
+\small
+Начинаем с $\dot x=1$, $\dot y=0$:
+\[
+\dot a=y\dot x+x\dot y=y,\qquad
+\dot b=\cos x\,\dot x=\cos x.
+\]
+\[
+\dot c=\dot a+\dot b=y+\cos x.
+\]
+В конечном узле:
+\[
+\boxed{\dot f=2c\dot c=2(xy+\sin x)(y+\cos x).}
+\]
+\end{frame}
+
+% 44
+\begin{frame}{Прямой режим: как найти другую компоненту?}
+\small
+Для $\partial f/\partial y$ изменяем только начальные производные:
+\[
+\boxed{\dot x=0,\qquad \dot y=1.}
+\]
+Тогда
+\[
+\dot a=x,\quad \dot b=0,\quad\dot c=x,
+\quad\boxed{\dot f=2cx.}
+\]
+\begin{alertblock}{Ограничение прямого режима}
+Для полного градиента скалярной функции $d$ переменных в общем случае нужны $d$ независимых направленных проходов.
+\end{alertblock}
+\end{frame}
+
+% 45
+\begin{frame}{Обратный режим: поменяем направление обхода}
+\small
+Сначала выполняем \textbf{обычный прямой проход}, чтобы знать значения всех узлов.
+
+Затем начинаем с конечной функции. Вводим обозначение:
+\[
+\boxed{\bar u:=\frac{\partial f}{\partial u}.}
+\]
+В конечном узле всегда $\bar f=1$. Остальные величины получим, проходя от выхода к входам.
+\end{frame}
+
+% 46
+\begin{frame}{Обратный проход: от результата к сумме}
+\centering
+\pic[.78]{graph_reverse_seed.pdf}
+
+\small
+Так как $f=c^2$ и $\bar f=1$, получаем
+\[
+\boxed{\bar c=2c.}
+\]
+На схеме стрелки показывают порядок \textbf{распространения производных}, а не вычисления значений.
+\end{frame}
+
+% 47
+\begin{frame}{Обратный проход: разветвление и накопление}
+\small
+Поскольку $c=a+b$, от узла $c$ получаем
+\[
+\bar a=\bar c\frac{\partial c}{\partial a}=2c,
+\qquad
+\bar b=\bar c\frac{\partial c}{\partial b}=2c.
+\]
+\centering
+\pic[.69]{graph_reverse_mid.pdf}
+\end{frame}
+
+% 48
+\begin{frame}{Обратный проход: собираем градиент по входам}
+\small
+От ветки $a=xy$:
+\[
+\bar x\mathrel{+}=\bar a\,y,
+\qquad\bar y\mathrel{+}=\bar a\,x.
+\]
+От ветки $b=\sin x$:
+\[
+\bar x\mathrel{+}=\bar b\cos x.
+\]
+В итоге
+\[
+\boxed{\bar x=2c(y+\cos x),\qquad \bar y=2cx.}
+\]
+\begin{alertblock}{Ключевой принцип}
+Если в параметр ведёт несколько путей, их вклады в производную \textbf{складываются}.
+\end{alertblock}
+\end{frame}
+
+% 49
+\begin{frame}{Какой режим выгоднее?}
+\small
+\begin{center}
+\begin{tabular}{p{.43\linewidth}p{.43\linewidth}}
+\toprule
+\textbf{Прямой режим} & \textbf{Обратный режим}\\
+\midrule
+Вычисляет $Jv$ & Вычисляет $J^\top u$\\
+\addlinespace
+Особенно удобен при небольшом числе входов & Особенно удобен при небольшом числе выходов\\
+\addlinespace
+Для полного градиента нужен проход по каждому базисному направлению & Для скалярного выхода достаточно одного обратного прохода\\
+\bottomrule
+\end{tabular}
+\end{center}
+\smallskip
+\textbf{Цена обратного режима:} часто нужно сохранять промежуточные значения (или пересчитывать их), то есть возникает компромисс между памятью и временем.
+\end{frame}
+
+% 50
+\begin{frame}{А можно просто приближать производные числами?}
+\small
+Например, центральная конечная разность:
+\[
+\boxed{f'(x)\approx\frac{f(x+h)-f(x-h)}{2h}.}
+\]
+При достаточно гладкой функции погрешность усечения имеет порядок $O(h^2)$, но слишком малый шаг усиливает влияние ошибок округления.
+
+\begin{alertblock}{Вопрос}
+Почему нельзя просто выбрать $h=10^{-100}$ и получить идеальную производную?
+\end{alertblock}
+\end{frame}
+
+% 51
+\begin{frame}{Численная производная: большой и очень маленький шаг}
+\centering
+\pic[.81]{finite_difference_error.pdf}
+
+\small
+При слишком большом $h$ приближение грубо; при слишком маленьком возникают потери точности из-за вычитания близких чисел.
+\end{frame}
+
+% 52
+\begin{frame}[fragile]{Как выглядит автоматическое дифференцирование в Python}
+\footnotesize
+\begin{semiverbatim}
+import torch
+x = torch.tensor(1.0, requires_grad=True)
+y = torch.tensor(2.0, requires_grad=True)
+f = (x*y + torch.sin(x))**2
+f.backward()
+print(x.grad.item(), y.grad.item())
+\end{semiverbatim}
+\small
+Команда \texttt{backward()} выполняет обратный проход и заполняет производные у входных переменных.
+
+\begin{block}{Математика не изменилась}
+Компьютер применяет то же правило цепочки, которое мы только что проделали вручную.
+\end{block}
+\end{frame}
+
+% 53
+\begin{frame}{Проверяем три способа вычислить производную}
+\small
+Для $f(x,y)=(xy+\sin x)^2$ можно сравнить:
+\begin{itemize}
+\item \textbf{Аналитическую:} $\partial_xf=2(xy+\sin x)(y+\cos x)$;
+\item \textbf{Численную:} конечную разность по $x$;
+\item \textbf{Автоматическую:} результат обратного прохода.
+\end{itemize}
+\begin{alertblock}{Как интерпретировать согласие}
+Совпадение результатов — полезная проверка реализации, но не формальное доказательство правильности для всех входов.
+\end{alertblock}
+\end{frame}
+
+% 54
+\begin{frame}{Три частые ошибки в реальной реализации}
+\small
+\begin{enumerate}
+\item \textbf{Размерности:} записали $A(Ax-b)$ вместо $A^\top(Ax-b)$.
+\item \textbf{Масштаб потери:} при переходе от суммы к среднему забыли множитель $1/n$.
+\item \textbf{Накопление:} повторно вызвали обратный проход, не очистив ранее накопленные градиенты в библиотеке.
+\end{enumerate}
+\begin{exampleblock}{Почему помогает теория}
+Если понимать, что именно вычисляет градиент, такие ошибки легче заметить, чем при бездумном использовании библиотеки.
+\end{exampleblock}
+\end{frame}
+
+% 55
+\begin{frame}{Карта лекции}
+\small
+\[
+\boxed{df=J_f\,dx}
+\]
+\[
+\Downarrow\quad
+\boxed{J_{h\circ g}=J_hJ_g}
+\]
+\[
+\Downarrow\quad
+\boxed{\text{локальные производные на графе}}
+\]
+\[
+\Downarrow\quad
+\boxed{\text{прямой и обратный проходы}}
+\]
+Автоматическое дифференцирование — алгоритмическое применение правила цепочки, а не численная аппроксимация конечными разностями.
+\end{frame}
+
+% 56
+\begin{frame}{Следующая лекция: как выбирать шаг?}
+\small
+Теперь мы знаем, \textbf{как вычислить} $\grad f(x_k)$ даже для сложной функции.
+
+Но градиентный спуск требует ещё одного решения:
+\[
+\boxed{x_{k+1}=x_k-\alpha_k\grad f(x_k).}
+\]
+\begin{alertblock}{Следующий вопрос}
+Как выбирать $\alpha_k$ и когда останавливать алгоритм, если оптимальное решение заранее неизвестно?
+\end{alertblock}
+Далее — поиск шага, достаточное убывание и критерии остановки.
+\end{frame}
+
+\end{document}

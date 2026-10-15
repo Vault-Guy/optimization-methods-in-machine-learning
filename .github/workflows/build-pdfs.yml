@@ -68,7 +68,7 @@ jobs:
               --output "/tmp/HSE-theme/${file}"
           done
 
-          for lecture in lectures/lecture01 lectures/lecture02 lectures/lecture03 lectures/lecture04 lectures/lecture05 lectures/lecture06
+          for lecture in lectures/lecture01 lectures/lecture02 lectures/lecture03 lectures/lecture04 lectures/lecture05 lectures/lecture06 lectures/lecture07
           do
             rm -rf "${lecture}/HSE-theme"
             cp -R /tmp/HSE-theme "${lecture}/HSE-theme"
@@ -81,6 +81,7 @@ jobs:
           python lectures/lecture04/generate_figures.py
           python lectures/lecture05/generate_figures.py
           python lectures/lecture06/generate_figures.py
+          python lectures/lecture07/generate_figures.py
 
       - name: Build lecture 1
         working-directory: lectures/lecture01
@@ -112,6 +113,11 @@ jobs:
         run: |
           latexmk -pdf -interaction=nonstopmode -halt-on-error lecture06_convergence.tex
 
+      - name: Build lecture 7
+        working-directory: lectures/lecture07
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error lecture07_auto_differentiation.tex
+
       - name: Collect PDFs
         run: |
           mkdir -p pdf
@@ -121,6 +127,7 @@ jobs:
           cp lectures/lecture04/lecture04_conditioning_gd.pdf pdf/
           cp lectures/lecture05/lecture05_convexity.pdf pdf/
           cp lectures/lecture06/lecture06_convergence.pdf pdf/
+          cp lectures/lecture07/lecture07_auto_differentiation.pdf pdf/
 
       - name: Upload PDFs as workflow artifact
         uses: actions/upload-artifact@v4
