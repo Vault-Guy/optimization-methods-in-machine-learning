@@ -26,6 +26,8 @@
 | 2 | Геометрия оптимизации | [PDF](pdf/seminar02_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar02/seminar02_computational_tasks.ipynb) |
 | 3 | Квадратичная оптимизация, обусловленность и градиентный спуск | [PDF](pdf/seminar03_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar03/seminar03_computational_tasks.ipynb) |
 | 4 | Гладкость, выпуклость и условия оптимальности | [PDF](pdf/seminar04_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar04/seminar04_computational_tasks.ipynb) |
+| 5 | Скорость сходимости градиентного спуска | [PDF](pdf/seminar05_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar05/seminar05_computational_tasks.ipynb) |
+| 6 | Матричное и автоматическое дифференцирование | [PDF](pdf/seminar06_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar06/seminar06_computational_tasks.ipynb) |
 ## Домашние лабораторные
 
 | № | Тема | Материалы |
@@ -57,6 +59,12 @@ seminars/
     README.md
     seminar04_theory.tex
     seminar04_computational_tasks.ipynb
+  seminar05/
+    seminar05_theory.pdf
+    seminar05_computational_tasks.ipynb
+  seminar06/
+    seminar06_theory.pdf
+    seminar06_computational_tasks.ipynb
 labs/
   lab01/
     README.md
