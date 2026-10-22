@@ -1,0 +1,822 @@
+%!TEX TS-program = pdflatex
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{cmap}
+\usepackage{amsmath,amssymb,mathtools,booktabs,array,etoolbox,PTSans,graphicx}
+\graphicspath{{figures/}}
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand{\rmdefault}{\sfdefault}
+\newbool{russian}\booltrue{russian}
+\usepackage{HSE-theme/beamerthemeHSE}
+\hypersetup{bookmarks=false}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamerfont{frametitle}{size=\Large}
+\setbeamerfont{framesubtitle}{size=\small}
+\setbeamerfont{block title}{size=\normalsize}
+\setbeamerfont{block body}{size=\small}
+\setlength{\abovedisplayskip}{6pt}
+\setlength{\belowdisplayskip}{6pt}
+\setlength{\abovedisplayshortskip}{4pt}
+\setlength{\belowdisplayshortskip}{4pt}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\figtall}[1]{\begin{center}\includegraphics[height=.50\textheight,keepaspectratio]{#1}\end{center}}
+\newcommand{\figshort}[1]{\begin{center}\includegraphics[height=.38\textheight,keepaspectratio]{#1}\end{center}}
+\title[Методы оптимизации]{Методы оптимизации\\в машинном обучении}
+\subtitle{Лекция 8. Выбор шага: точный поиск, условие Армихо и гарантии}
+\author[Н. Лукьяненко]{Никита Лукьяненко}
+\institute{Совместная программа СМОЛ ГУ и ФКН НИУ ВШЭ}
+\date{2026/27 учебный год}
+\begin{document}
+% Slide 1
+\frame[plain]{\titlepage}
+
+% Slide 2
+\begin{frame}{Шаг и направление — две разные величины}
+\small
+Общий градиентный метод задаёт итерацию
+\[
+\boxed{x_{k+1}=x_k+\alpha_k d_k,\qquad \alpha_k>0.}
+\]
+Здесь $d_k$ отвечает за направление, а $\alpha_k$ --- за длину перемещения.\\[.5em]
+Для градиентного спуска $d_k=-\nabla f(x_k)$, поэтому
+\[
+x_{k+1}=x_k-\alpha_k\nabla f(x_k).
+\]
+\begin{block}{Постановка вопроса}
+Как выбрать $\alpha_k$, если градиент уже вычислен?
+\end{block}
+\end{frame}
+
+% Slide 3
+\begin{frame}{Одна функция, три режима выбора шага}
+\small
+\figtall{step_1d.pdf}
+\vspace{-.3em}
+Для $f(x)=x^2$ при постоянном шаге:
+\[
+x_{k+1}=(1-2\alpha)x_k.
+\]
+Характер поведения целиком определяется числом $|1-2\alpha|$.
+\end{frame}
+
+% Slide 4
+\begin{frame}{В многомерном случае важен спектр}
+\small
+\figtall{step_contours.pdf}
+\vspace{-.4em}
+Та же квадратичная задача, но разные $\alpha$: медленное движение, затухающие колебания, расходимость.
+\end{frame}
+
+% Slide 5
+\begin{frame}{Известный результат для квадратичной функции}
+\small
+Пусть $f(x)=\frac12x^\top Ax-b^\top x$ и $A=A^\top\succ0$.
+Тогда градиентный спуск с постоянным шагом сходится из любой начальной точки тогда и только тогда, когда
+\[
+\boxed{0<\alpha<\frac2L,\qquad L=\lambda_{\max}(A).}
+\]
+\figshort{spectral_threshold.pdf}
+\end{frame}
+
+% Slide 6
+\begin{frame}{Почему фиксированного шага недостаточно}
+\small
+Для общей гладкой функции константа $L$ может быть неизвестна, а её глобальная оценка --- чрезмерно большой.
+\begin{block}{Новая идея}
+Вместо выбора шага заранее попробуем искать его \textbf{в самой текущей точке}, пользуясь значениями $f$ и $\nabla f$.
+\end{block}
+Нужно формально определить, что считать хорошим шагом, и доказать, что его можно найти.
+\end{frame}
+
+% Slide 7
+\begin{frame}{Многомерная задача превращается в одномерную}
+\small
+Зафиксируем точку $x\in\R^n$ и ненулевое направление $d\in\R^n$.
+\begin{block}{Определение}
+Ограничение функции на прямую $x+\alpha d$:
+\[
+\boxed{\varphi(\alpha)=f(x+\alpha d),\quad \alpha\ge0.}
+\]
+\end{block}
+Теперь выбор шага --- одномерная задача по переменной $\alpha$.
+\end{frame}
+
+% Slide 8
+\begin{frame}{Первая производная вдоль направления}
+\small
+\begin{block}{Утверждение 1}
+Если $f$ дифференцируема, то
+\[
+\boxed{\varphi'(\alpha)=\nabla f(x+\alpha d)^\top d.}
+\]
+\end{block}
+\textbf{Доказательство.} Положим $z(\alpha)=x+\alpha d$. Тогда по правилу дифференцирования сложной функции
+\[
+\varphi'(\alpha)=\nabla f(z(\alpha))^\top z'(\alpha)
+=\nabla f(x+\alpha d)^\top d.\quad\square
+\]
+\end{frame}
+
+% Slide 9
+\begin{frame}{Вторая производная вдоль направления}
+\small
+\begin{block}{Утверждение 2}
+Если $f\in C^2$, то
+\[
+\boxed{\varphi''(\alpha)=d^\top\nabla^2 f(x+\alpha d)d.}
+\]
+\end{block}
+\textbf{Доказательство.} Дифференцируем $\nabla f(x+\alpha d)^\top d$ по $\alpha$. Вектор $d$ постоянен:
+\[
+\frac{d}{d\alpha}\nabla f(x+\alpha d)=\nabla^2f(x+\alpha d)d.
+\]
+Подставляя, получаем формулу. $\square$
+\end{frame}
+
+% Slide 10
+\begin{frame}{Частный случай: квадратичная функция}
+\small
+Пусть $f(z)=\frac12z^\top Az-b^\top z+c$, $A=A^\top$.
+Для $\varphi(\alpha)=f(x+\alpha d)$ получаем \textbf{точное} разложение:
+\[
+\varphi(\alpha)=f(x)+\alpha\nabla f(x)^\top d
++\frac{\alpha^2}{2}d^\top Ad.
+\]
+Следовательно,
+\[
+\varphi'(\alpha)=\nabla f(x)^\top d+\alpha d^\top Ad,
+\qquad
+\varphi''(\alpha)=d^\top Ad.
+\]
+Это соединяет квадратичные формы с одномерным поиском шага.
+\end{frame}
+
+% Slide 11
+\begin{frame}{Направление убывания: общий случай}
+\small
+\begin{block}{Определение}
+Ненулевой вектор $d$ называется \textbf{направлением убывания} функции $f$ в точке $x$, если
+\[
+\boxed{\nabla f(x)^\top d<0.}
+\]
+\end{block}
+Тогда $\varphi'(0)<0$, и малые положительные шаги уменьшают $f$.\newline
+\figshort{directional_slope.pdf}
+\end{frame}
+
+% Slide 12
+\begin{frame}{Почему малый положительный шаг уменьшает функцию}
+\small
+По определению производной
+\[
+\varphi'(0)=\lim_{\alpha\to0+}\frac{\varphi(\alpha)-\varphi(0)}{\alpha}<0.
+\]
+Поэтому для достаточно малых $\alpha>0$
+\[
+\frac{\varphi(\alpha)-\varphi(0)}{\alpha}<0.
+\]
+Так как $\alpha>0$, отсюда
+\[
+\boxed{f(x+\alpha d)<f(x).}\quad\square
+\]
+\textit{Важно:} здесь мы пока доказали убывание, но не нашли величину шага.
+\end{frame}
+
+% Slide 13
+\begin{frame}{Антиградиент действительно убывает}
+\small
+Для $d=-\nabla f(x)$ при $\nabla f(x)\neq0$
+\[
+\nabla f(x)^\top d=-\|\nabla f(x)\|_2^2<0.
+\]
+Более того, среди единичных направлений $\|d\|_2=1$
+\[
+\min_{\|d\|_2=1}\nabla f(x)^\top d=-\|\nabla f(x)\|_2.
+\]
+\textbf{Почему?} По неравенству Коши--Буняковского
+$\nabla f(x)^\top d\ge-\|\nabla f(x)\|_2$;
+равенство достигается при $d=-\nabla f(x)/\|\nabla f(x)\|_2$.
+\end{frame}
+
+% Slide 14
+\begin{frame}{Геометрия ограничения на прямую}
+\small
+\figtall{line_section_3d.pdf}
+\vspace{-.4em}
+Слева значения $f$ вдоль прямой $x+\alpha d$, справа --- та же зависимость как функция одной переменной $\varphi(\alpha)$.
+\end{frame}
+
+% Slide 15
+\begin{frame}{Условие стационарности по шагу}
+\small
+Если $\varphi$ достигает \textbf{локального минимума} во внутренней точке $\alpha^*>0$, то по теореме Ферма
+\[
+\boxed{\varphi'(\alpha^*)=0.}
+\]
+Отсюда
+\[
+\nabla f(x+\alpha^*d)^\top d=0.
+\]
+\begin{alertblock}{Оговорка}
+При граничном минимуме $\alpha^*=0$ равенство производной нулю не обязательно. И в общем случае стационарность ещё не доказывает минимальность.
+\end{alertblock}
+\end{frame}
+
+% Slide 16
+\begin{frame}{Когда стационарная точка шага — минимум}
+\small
+Если $\varphi''(\alpha)>0$ на рассматриваемом промежутке, то $\varphi$ строго выпукла.\\[.4em]
+Поэтому у неё \textbf{не более одного} минимума, а любая внутренняя стационарная точка --- глобальный минимум $\varphi$.
+\begin{block}{Для квадратичной функции}
+Если $A\succ0$ и $d\ne0$, то
+\[
+\varphi''(\alpha)=d^\top Ad>0.
+\]
+Значит, одномерная задача имеет строгую выпуклую геометрию.
+\end{block}
+\end{frame}
+
+% Slide 17
+\begin{frame}{Точный поиск шага: определение}
+\small
+\begin{block}{Определение}
+При фиксированных $x$ и $d$ \textbf{точным поиском шага} называют решение
+\[
+\boxed{\alpha^*\in\arg\min_{\alpha\ge0} f(x+\alpha d).}
+\]
+\end{block}
+Это не оптимизация по всем координатам: меняется только $\alpha$.\\[.5em]
+Если минимум достигается внутри полуоси, используем
+$\varphi'(\alpha^*)=0$.
+\end{frame}
+
+% Slide 18
+\begin{frame}{Внутренний минимум и граница допустимых шагов}
+\small
+Для дифференцируемой $\varphi$ минимум по $\alpha\ge0$ может быть
+\begin{itemize}
+\item внутренним ($\alpha^*>0$), тогда $\varphi'(\alpha^*)=0$;
+\item граничным ($\alpha^*=0$), тогда достаточно $\varphi'(0)\ge0$ при выпуклой $\varphi$.
+\end{itemize}
+В дальнейшем берём $d=-g$, $g=\nabla f(x)\ne0$: тогда
+\[
+\varphi'(0)=-\|g\|_2^2<0,
+\]
+и нулевой шаг не может быть оптимальным.
+\end{frame}
+
+% Slide 19
+\begin{frame}{Квадратичная функция: разложение вдоль антиградиента}
+\small
+Для $f(x)=\frac12x^\top Ax-b^\top x+c$, $A\succ0$, обозначим $g=Ax-b\ne0$.\\[.5em]
+Вдоль $d=-g$:
+\[
+\boxed{\varphi(\alpha)=f(x)-\alpha\|g\|_2^2
++\frac{\alpha^2}{2}g^\top Ag.}
+\]
+Поскольку $g^\top Ag>0$, получена \textbf{строго выпуклая квадратичная} функция шага.
+\end{frame}
+
+% Slide 20
+\begin{frame}{Точный шаг на квадратичной функции}
+\small
+Дифференцируем предыдущую формулу:
+\[
+\varphi'(\alpha)=-\|g\|_2^2+\alpha g^\top Ag.
+\]
+Из $\varphi'(\alpha^*)=0$ имеем
+\[
+\boxed{\alpha^*=\frac{\|g\|_2^2}{g^\top Ag}.}
+\]
+А $\varphi''(\alpha)=g^\top Ag>0$ доказывает, что это \textbf{единственный глобальный минимум} вдоль направления. $\square$
+\end{frame}
+
+% Slide 21
+\begin{frame}{Насколько велик точный шаг?}
+\small
+\begin{block}{Утверждение 3: спектральные границы}
+Если $A=A^\top\succ0$, $g\ne0$, $\mu=\lambda_{\min}(A)$, $L=\lambda_{\max}(A)$, то
+\[
+\boxed{\frac1L\le\alpha^*\le\frac1\mu.}
+\]
+\end{block}
+\textbf{Доказательство.} По спектральным границам
+\[
+\mu\|g\|_2^2\le g^\top Ag\le L\|g\|_2^2.
+\]
+Делим $\|g\|_2^2>0$ на части неравенства, получая нужные оценки. $\square$
+\end{frame}
+
+% Slide 22
+\begin{frame}{Пример спектральных границ}
+\small
+Пусть $A=\mathrm{diag}(1,9)$ и $g=(2,1)^\top$. Тогда
+\[
+\|g\|_2^2=5,\qquad g^\top Ag=4+9=13.
+\]
+Следовательно,
+\[
+\boxed{\alpha^*=\frac5{13}\approx0.385,\qquad
+\frac19\le\frac5{13}\le1.}
+\]
+\figshort{rayleigh_steps.pdf}
+\end{frame}
+
+% Slide 23
+\begin{frame}{Почему последовательные градиенты ортогональны}
+\small
+\begin{block}{Утверждение 4 (общий дифференцируемый случай)}
+Пусть $g_k=\nabla f(x_k)\neq0$ и $\alpha_k^*>0$ --- точный минимум
+$f(x_k-\alpha g_k)$ по $\alpha\ge0$. Тогда
+\[
+\boxed{g_{k+1}^{\top}g_k=0,\qquad g_{k+1}=\nabla f(x_{k+1}).}
+\]
+\end{block}
+\textbf{Доказательство.} Зафиксируем $x_k$ и $g_k$ и положим
+\[
+\varphi_k(\alpha)=f(x_k-\alpha g_k).
+\]
+По правилу дифференцирования сложной функции
+\[
+\varphi_k'(\alpha)=-\nabla f(x_k-\alpha g_k)^\top g_k.
+\]
+Точный положительный шаг $\alpha_k^*$ --- внутренний минимум, поэтому
+$\varphi_k'(\alpha_k^*)=0$. При этом $x_{k+1}=x_k-\alpha_k^*g_k$.
+Значит,
+\[
+0=\varphi_k'(\alpha_k^*)
+=-\nabla f(x_{k+1})^\top g_k=-g_{k+1}^\top g_k.\quad\square
+\]
+{\footnotesize\textit{Смысл: после точной минимизации вдоль $-g_k$ производная
+по этому направлению равна нулю. Квадратичность $f$ не требуется.}}
+\end{frame}
+
+% Slide 24
+\begin{frame}{Почему точный поиск даёт «зигзаг»}
+\small
+\figtall{orthogonal_gradients.pdf}
+\vspace{-.4em}
+На рисунке угол между $g_k$ и $g_{k+1}$ прямой, но это \textbf{не означает}, что каждый шаг ведёт напрямую к минимуму.
+\end{frame}
+
+% Slide 25
+\begin{frame}{Сравнение нескольких точных шагов}
+\small
+\figtall{exact_path.pdf}
+\vspace{-.4em}
+Вытянутые линии уровня делают многократные повороты направления естественными даже при оптимальном шаге вдоль каждого антиградиента.
+\end{frame}
+
+% Slide 26
+\begin{frame}{Цена точного поиска и следующая идея}
+\small
+Для квадратичной функции мы получили формулу $\alpha^*$. Но для общей $f$ задача
+\[
+\min_{\alpha\ge0} f(x+\alpha d)
+\]
+сама может потребовать множества вычислений функции или её производных.\\[.5em]
+\begin{block}{Компромисс}
+Не нужно находить \textbf{идеальный} шаг. Достаточно найти шаг с \textbf{доказуемым уменьшением функции}.
+\end{block}
+Это приводит к условию Армихо.
+\end{frame}
+
+% Slide 27
+\begin{frame}{Линейное приближение вдоль направления}
+\small
+При малом $\alpha$ по дифференцируемости
+\[
+f(x+\alpha d)=f(x)+\alpha\nabla f(x)^\top d+o(\alpha).
+\]
+Обозначим \textbf{линейное приближение}
+\[
+\boxed{m_x(\alpha)=f(x)+\alpha\nabla f(x)^\top d.}
+\]
+Для направления убывания $\nabla f(x)^\top d<0$ оно задаёт отрицательный наклон.
+\end{frame}
+
+% Slide 28
+\begin{frame}{Две величины уменьшения функции}
+\small
+\textbf{Фактическое уменьшение:}
+\[
+\Delta_{\text{факт}}(\alpha)=f(x)-f(x+\alpha d).
+\]
+\textbf{Уменьшение по линейному приближению:}
+\[
+\Delta_{\text{лин}}(\alpha)=f(x)-m_x(\alpha)
+=-\alpha\nabla f(x)^\top d>0.
+\]
+Их не нужно путать: первая вычисляется по исходной $f$, вторая --- по касательной модели.
+\end{frame}
+
+% Slide 29
+\begin{frame}{Условие Армихо: определение}
+\small
+\begin{block}{Определение}
+При $0<c<1$ шаг $\alpha>0$ удовлетворяет \textbf{условию Армихо}, если
+\[
+\boxed{f(x+\alpha d)\le f(x)+c\alpha\nabla f(x)^\top d.}
+\]
+\end{block}
+Эквивалентно:
+\[
+\boxed{\Delta_{\text{факт}}(\alpha)\ge c\,\Delta_{\text{лин}}(\alpha).}
+\]
+То есть реальное уменьшение не меньше доли $c$ от уменьшения по линейному приближению.
+\end{frame}
+
+% Slide 30
+\begin{frame}{Геометрический смысл Армихо}
+\small
+\figtall{armijo_geometry.pdf}
+\vspace{-.5em}
+Принимаем те $\alpha$, для которых график $\varphi(\alpha)$ лежит ниже границы $\varphi(0)+c\alpha\varphi'(0)$.
+\end{frame}
+
+% Slide 31
+\begin{frame}{Как на условие влияет параметр $c$}
+\small
+\figtall{armijo_c.pdf}
+\vspace{-.4em}
+Чем ближе $c$ к единице, тем ближе требование к полному линейному уменьшению; чем меньше $c$, тем оно мягче.
+\end{frame}
+
+% Slide 32
+\begin{frame}{Почему недостаточно просто $f(x+\alpha d)<f(x)$}
+\small
+При любом направлении убывания очень маленький $\alpha$ уменьшит функцию, но может почти не изменить значение $f$.\\[.5em]
+Условие Армихо требует \textbf{количественно заметного} убывания:
+\[
+f(x)-f(x+\alpha d)
+\ge -c\alpha\nabla f(x)^\top d.
+\]
+При градиентном направлении правая часть равна
+\[
+\boxed{c\alpha\|\nabla f(x)\|_2^2.}
+\]
+Это не просто качественное условие уменьшения.
+\end{frame}
+
+% Slide 33
+\begin{frame}{Арифметика Армихо на функции $f(x)=x^2$}
+\small
+Пусть $x=2$, $g=f'(2)=4$, $d=-4$. Тогда
+\[
+f(x+\alpha d)=(2-4\alpha)^2,\qquad
+f(2)+c\alpha f'(2)d=4-16c\alpha.
+\]
+Условие Армихо:
+\[
+4-16\alpha+16\alpha^2\le4-16c\alpha.
+\]
+Для $\alpha>0$:
+\[
+\boxed{\alpha\le1-c.}
+\]
+При $c=\frac14$ подходят все $0<\alpha\le\frac34$.
+\end{frame}
+
+% Slide 34
+\begin{frame}{Почему подходящий маленький шаг существует}
+\small
+\begin{block}{Теорема 1}
+Если $f$ дифференцируема в точке $x$, а $d$ --- направление убывания, то при любом $c\in(0,1)$ \textbf{все достаточно малые} $\alpha>0$ удовлетворяют Армихо.
+\end{block}
+\textbf{Доказательство.} При $\alpha\to0+$
+\[
+f(x+\alpha d)=f(x)+\alpha\nabla f(x)^\top d+o(\alpha).
+\]
+Остаётся сравнить линейный член и остаток.
+\end{frame}
+
+% Slide 35
+\begin{frame}{Доказательство существования шага Армихо}
+\small
+Обозначим $s=\nabla f(x)^\top d<0$.
+Требуемое неравенство после подстановки разложения:
+\[
+\alpha s+o(\alpha)\le c\alpha s
+\quad\Longleftrightarrow\quad
+(1-c)s+\frac{o(\alpha)}{\alpha}\le0.
+\]
+Так как $(1-c)s<0$ и $o(\alpha)/\alpha\to0$, последнее неравенство выполняется при всех достаточно малых $\alpha>0$. $\square$
+\end{frame}
+
+% Slide 36
+\begin{frame}{Напомним лемму об убывании}
+\small
+Если $f$ имеет $L$-липшицев градиент, то для любых $x,h$
+\[
+\boxed{f(x+h)\le f(x)+\nabla f(x)^\top h+\frac L2\|h\|_2^2.}
+\]
+Подставляя $h=\alpha d$, получаем
+\[
+f(x+\alpha d)\le f(x)+\alpha\nabla f(x)^\top d
++\frac{L\alpha^2}{2}\|d\|_2^2.
+\]
+Теперь можно вывести явную \textbf{достаточную границу} на шаг Армихо.
+\end{frame}
+
+% Slide 37
+\begin{frame}{Достаточное условие Армихо при $L$-гладкости}
+\small
+Чтобы обеспечить Армихо, достаточно выполнения
+\[
+\alpha\nabla f(x)^\top d+\frac{L\alpha^2}{2}\|d\|_2^2
+\le c\alpha\nabla f(x)^\top d.
+\]
+При $\alpha>0$, $L>0$ преобразуем:
+\[
+\frac{L\alpha}{2}\|d\|_2^2
+\le (1-c)(-\nabla f(x)^\top d).
+\]
+Отсюда
+\[
+\boxed{0<\alpha\le \frac{2(1-c)(-\nabla f(x)^\top d)}{L\|d\|_2^2}.}
+\]
+\end{frame}
+
+% Slide 38
+\begin{frame}{Специальный случай: градиентное направление}
+\small
+При $d=-\nabla f(x)=-g$, $g\ne0$,
+\[
+-\nabla f(x)^\top d=\|g\|_2^2,\qquad \|d\|_2^2=\|g\|_2^2.
+\]
+Поэтому предыдущая оценка упрощается:
+\[
+\boxed{0<\alpha\le\bar\alpha:=\frac{2(1-c)}{L}.}
+\]
+\begin{alertblock}{Важно}
+Это \textbf{достаточное}, но не обязательно необходимое условие Армихо. Более крупные шаги иногда тоже подходят.
+\end{alertblock}
+\end{frame}
+
+% Slide 39
+\begin{frame}{Как угол направления влияет на допустимый шаг}
+\small
+Пусть $\theta$ --- угол между $d$ и $-g$, $g=\nabla f(x)$.
+Тогда $-g^\top d=\|g\|\|d\|\cos\theta$ и достаточная граница принимает вид
+\[
+\boxed{\alpha\le\frac{2(1-c)\|g\|\cos\theta}{L\|d\|}.}
+\]
+\figshort{angle_armijo.pdf}
+\end{frame}
+
+% Slide 40
+\begin{frame}{Проверка оценок на квадратичном примере}
+\small
+Возьмём снова $f(x)=x^2$, $x=2$, $c=\frac14$.
+Здесь глобальная константа гладкости $L=2$.
+\[
+\bar\alpha=\frac{2(1-c)}{L}=
+\frac{2\cdot3/4}{2}=\frac34.
+\]
+Ранее прямым вычислением мы получили \textbf{точно тот же} интервал принятия:
+\[
+0<\alpha\le\frac34.
+\]
+Для других функций оценка через $L$ может оказаться консервативной.
+\end{frame}
+
+% Slide 41
+\begin{frame}{Поиск шага с последовательным сокращением}
+\small
+Берём начальный пробный шаг $\alpha_0>0$ и коэффициент $\beta\in(0,1)$.\\[.5em]
+Последовательно проверяем
+\[
+\boxed{\alpha_j=\alpha_0\beta^j,\qquad j=0,1,2,\dots}
+\]
+до первого выполнения условия Армихо.
+\begin{block}{Терминология}
+Этот алгоритм также называют \textbf{обратным поиском шага}. \textit{Обратным} здесь означает только последовательное \textbf{сокращение длины шага}, а не смену направления.
+\end{block}
+\end{frame}
+
+% Slide 42
+\begin{frame}{Алгоритм в псевдокоде}
+\small
+\begin{block}{Поиск шага с последовательным сокращением}
+\begin{enumerate}
+\item Вычислить $f(x)$, $g=\nabla f(x)$, выбрать $d$ и $\alpha\leftarrow\alpha_0$.
+\item Пока 
+\[
+f(x+\alpha d)>f(x)+c\alpha g^\top d,
+\]
+заменить $\alpha\leftarrow\beta\alpha$.
+\item Вернуть найденный $\alpha$.
+\end{enumerate}
+\end{block}
+При $d=-g$ правая часть проверки: $f(x)-c\alpha\|g\|_2^2$.
+\end{frame}
+
+% Slide 43
+\begin{frame}{Пример двух проверок: $f(x)=x^2$}
+\small
+\figtall{backtrack_example.pdf}
+\vspace{-.35em}
+При $x=2$, $\alpha_0=1$, $\beta=1/2$, $c=1/4$: шаг $1$ отклоняется, следующий шаг $1/2$ принимается.
+\end{frame}
+
+% Slide 44
+\begin{frame}{Поиск шага всегда завершается}
+\small
+\begin{block}{Теорема 2}
+Если $f$ дифференцируема в $x$, $d$ --- направление убывания, $\alpha_0>0$, $0<\beta,c<1$, то алгоритм завершится \textbf{за конечное число проверок}.
+\end{block}
+\textbf{Доказательство.} По теореме 1 существует $\delta>0$: все шаги $0<\alpha\le\delta$ удовлетворяют Армихо. Поскольку
+\[
+\alpha_0\beta^j\xrightarrow[j\to\infty]{}0,
+\]
+то для некоторого конечного $j$ имеем $\alpha_0\beta^j\le\delta$. Значит, поиск остановится. $\square$
+\end{frame}
+
+% Slide 45
+\begin{frame}{Сколько проверок может понадобиться?}
+\small
+Если функция $L$-гладкая и $d=-g$, то достаточно
+\[
+\alpha_0\beta^j\le\bar\alpha=\frac{2(1-c)}{L}.
+\]
+При $\alpha_0>\bar\alpha$ это выполнится, когда
+\[
+j\ge\frac{\ln(\bar\alpha/\alpha_0)}{\ln\beta},
+\qquad\ln\beta<0.
+\]
+Следовательно, число \textbf{проверок функции} не превышает
+\[
+\boxed{1+\max\!\left\{0,\left\lceil\frac{\ln(\bar\alpha/\alpha_0)}{\ln\beta}\right\rceil\right\}.}
+\]
+\end{frame}
+
+% Slide 46
+\begin{frame}{Нижняя граница на принятый шаг}
+\small
+\begin{block}{Утверждение 5}
+Для $L$-гладкой функции при $d=-g$, $g\ne0$, поиск с фиксированными $\alpha_0,\beta,c$ возвращает $\alpha_k$, удовлетворяющий
+\[
+\boxed{\alpha_k\ge\alpha_{\min}:=\min\!\left\{\alpha_0,\,\beta\frac{2(1-c)}{L}\right\}>0.}
+\]
+\end{block}
+Эта оценка важна: подбор шага \textbf{не допускает его бесконтрольного уменьшения} при заданных предпосылках.
+\end{frame}
+
+% Slide 47
+\begin{frame}{Доказательство нижней границы}
+\small
+Обозначим $\bar\alpha=2(1-c)/L$.
+\begin{itemize}
+\item Если приняли $\alpha_0$, то $\alpha_k=\alpha_0\ge\alpha_{\min}$.
+\item Если $\alpha_k=\beta\alpha_{\mathrm{prev}}$ получен после хотя бы одного отказа, то предыдущий шаг $\alpha_{\mathrm{prev}}$ не удовлетворял Армихо.
+\end{itemize}
+Но \textbf{все} шаги $\alpha\le\bar\alpha$ его удовлетворяют. Значит,
+\[
+\alpha_{\mathrm{prev}}>\bar\alpha
+\quad\Longrightarrow\quad
+\alpha_k=\beta\alpha_{\mathrm{prev}}>\beta\bar\alpha.
+\]
+В обоих случаях $\alpha_k\ge\alpha_{\min}$. $\square$
+\end{frame}
+
+% Slide 48
+\begin{frame}{Как влияет коэффициент сокращения $\beta$}
+\small
+\figtall{beta_decay.pdf}
+\vspace{-.4em}
+При большом $\beta$ проверки чаще дают шаги близких величин. Малое $\beta$ быстрее уменьшает шаг, но может привести к излишне короткому принятому шагу.
+\end{frame}
+
+% Slide 49
+\begin{frame}{Сравнение стратегий на одной задаче}
+\small
+\figtall{strategy_comparison.pdf}
+\vspace{-.45em}
+Фиксированный, точный и адаптивно сокращаемый шаг могут существенно отличаться как по числу итераций, так и по числу вычислений $f$.
+\end{frame}
+
+% Slide 50
+\begin{frame}{Цена одного шага алгоритма}
+\small
+Пусть вычисление $f(x)$ стоит $C_f$, а $\nabla f(x)$ --- $C_g$.\\[.4em]
+\begin{itemize}
+\item \textbf{Фиксированный шаг:} обычно одна оценка градиента и одно новое значение функции.
+\item \textbf{Точный поиск:} дополнительная одномерная задача оптимизации.
+\item \textbf{Поиск с сокращением:} одна оценка $\nabla f(x)$, затем несколько проверок $f(x+\alpha d)$.
+\end{itemize}
+\begin{block}{Вывод}
+Меньшее число итераций не обязательно означает меньшую вычислительную стоимость.
+\end{block}
+\end{frame}
+
+% Slide 51
+\begin{frame}{Гарантия уменьшения на каждом шаге}
+\small
+Для градиентного направления принятый по Армихо шаг удовлетворяет
+\[
+f(x_{k+1})\le f(x_k)-c\alpha_k\|\nabla f(x_k)\|_2^2.
+\]
+По доказанной нижней границе $\alpha_k\ge\alpha_{\min}>0$, поэтому
+\[
+\boxed{f(x_{k+1})\le f(x_k)-c\alpha_{\min}\|\nabla f(x_k)\|_2^2.}
+\]
+Теперь можно получить количественную оценку на стационарность без выпуклости.
+\end{frame}
+
+% Slide 52
+\begin{frame}{Суммируем убывания по итерациям}
+\small
+Просуммируем от $k=0$ до $N-1$:
+\[
+\begin{aligned}
+c\alpha_{\min}\sum_{k=0}^{N-1}\|\nabla f(x_k)\|_2^2
+&\le\sum_{k=0}^{N-1}\big(f(x_k)-f(x_{k+1})\big)\\
+&=f(x_0)-f(x_N).
+\end{aligned}
+\]
+Если $f(x)\ge f_{\inf}$ для всех $x$, то
+\[
+\boxed{\sum_{k=0}^{N-1}\|\nabla f(x_k)\|_2^2
+\le\frac{f(x_0)-f_{\inf}}{c\alpha_{\min}}.}
+\]
+\end{frame}
+
+% Slide 53
+\begin{frame}{Следствие: градиент стремится к нулю}
+\small
+\begin{block}{Следствие из оценки суммы}
+Если $f$ $L$-гладкая, ограничена снизу, а на каждом шаге применяется поиск с фиксированными $\alpha_0,\beta,c$ и направлением $-\nabla f(x_k)$, то
+\[
+\boxed{\|\nabla f(x_k)\|_2\longrightarrow0.}
+\]
+\end{block}
+\textbf{Почему?} Неотрицательный ряд
+$\sum_{k\ge0}\|\nabla f(x_k)\|_2^2$
+имеет ограниченные частичные суммы, значит сходится, а его члены стремятся к нулю.
+\end{frame}
+
+% Slide 54
+\begin{frame}{Количественная оценка: $O(1/\sqrt N)$}
+\small
+Из оценки суммы дополнительно получаем
+\[
+\min_{0\le k<N}\|\nabla f(x_k)\|_2^2
+\le\frac{f(x_0)-f_{\inf}}{c\alpha_{\min}N}.
+\]
+Следовательно,
+\[
+\boxed{\min_{0\le k<N}\|\nabla f(x_k)\|_2
+\le\sqrt{\frac{f(x_0)-f_{\inf}}{c\alpha_{\min}N}}.}
+\]
+Это гарантия достижения \textbf{приближённой стационарной точки}, а не глобального минимума.
+\end{frame}
+
+% Slide 55
+\begin{frame}{Критерии остановки: что проверять?}
+\small
+\begin{block}{Три популярных правила}
+\begin{enumerate}
+\item $\|\nabla f(x_k)\|_2\le\varepsilon_g$;
+\item $\|x_{k+1}-x_k\|_2\le\varepsilon_x$;
+\item $|f(x_{k+1})-f(x_k)|\le\varepsilon_f$.
+\end{enumerate}
+\end{block}
+Первое правило измеряет приближённую стационарность. Два других могут сработать \textbf{из-за слишком короткого шага}, даже вдали от минимума.
+\end{frame}
+
+% Slide 56
+\begin{frame}{Почему маленькое изменение — не признак оптимума}
+\small
+\figtall{stopping_pitfalls.pdf}
+\vspace{-.4em}
+Слева малое $\|x_{k+1}-x_k\|$ может возникнуть из-за $\alpha_k\approx0$. Справа $\nabla f=0$ может означать седловую точку.
+\end{frame}
+
+% Slide 57
+\begin{frame}{Итоги и следующая лекция}
+\small
+\begin{block}{Что мы доказали сегодня}
+Точный поиск вдоль антиградиента даёт $g_{k+1}^\top g_k=0$.
+Поиск с последовательным сокращением и условием Армихо при
+$L$-гладкости обеспечивает положительную нижнюю границу шага.
+Если $f$ ограничена снизу, то $\|\nabla f(x_k)\|_2\to0$.
+\end{block}
+
+\begin{alertblock}{Лекция 9. Метод Ньютона}
+Сегодня мы подбирали \textbf{длину шага вдоль заданного направления}.
+А что если выбирать само перемещение, минимизируя
+\textbf{квадратичное приближение} функции?
+\end{alertblock}
+\[
+m_x(h)=f(x)+\nabla f(x)^\top h+
+\frac12 h^\top\nabla^2f(x)h.
+\]
+При $\nabla^2f(x)\succ0$ минимум этой модели достигается при
+\[
+\boxed{h_{\mathrm N}=-\bigl(\nabla^2f(x)\bigr)^{-1}\nabla f(x).}
+\]
+\end{frame}
+
+\end{document}

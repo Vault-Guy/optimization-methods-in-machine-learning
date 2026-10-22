@@ -15,6 +15,7 @@
 | 5 | Выпуклость и условия оптимальности | [PDF](pdf/lecture05_convexity.pdf) | [LaTeX](lectures/lecture05/lecture05_convexity.tex) · [графики](lectures/lecture05/generate_figures.py) |
 | 6 | Скорость сходимости градиентного спуска | [PDF](pdf/lecture06_convergence.pdf) | [LaTeX](lectures/lecture06/lecture06_convergence.tex) · [графики](lectures/lecture06/generate_figures.py) |
 | 7 | Матричное и автоматическое дифференцирование | [PDF](pdf/lecture07_auto_differentiation.pdf) | [LaTeX](lectures/lecture07/lecture07_auto_differentiation.tex) · [генератор рисунков](lectures/lecture07/generate_figures.py) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/lectures/lecture07/lecture07_illustrations_colab.ipynb) |
+| 8 | Выбор шага в градиентных методах: точный поиск, условие Армихо и гарантии | [PDF](pdf/lecture08_step_selection_math.pdf) | [LaTeX](lectures/lecture08/lecture08_step_selection_math.tex) · [графики](lectures/lecture08/generate_figures.py) |
 
 > PDF собираются автоматически GitHub Actions после изменений исходников. Если ссылки временно недоступны сразу после коммита, нужно дождаться завершения workflow **Build lecture PDFs**.
 
@@ -44,6 +45,7 @@ lectures/
   lecture05/
   lecture06/
   lecture07/
+  lecture08/
 seminars/
   seminar02/
     seminar02_theory.tex
@@ -67,7 +69,7 @@ pdf/                     # автоматически собранные лек�
 
 Подробные инструкции находятся в [BUILD.md](BUILD.md).
 
-Лекция 1 рассчитана на **XeLaTeX**, лекции 2–7 — на **pdfLaTeX**. Графики для лекций 2–7 генерируются соответствующими Python-скриптами. Автоматическая сборка сама получает HSE Beamer theme и сохраняет готовые PDF.
+Лекция 1 рассчитана на **XeLaTeX**, лекции 2–8 — на **pdfLaTeX**. Графики для лекций 2–8 генерируются соответствующими Python-скриптами. Автоматическая сборка сама получает HSE Beamer theme и сохраняет готовые PDF.
 
 Python-зависимости перечислены в [requirements.txt](requirements.txt).
 
