@@ -29,6 +29,8 @@
 | 4 | Гладкость, выпуклость и условия оптимальности | [PDF](pdf/seminar04_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar04/seminar04_computational_tasks.ipynb) |
 | 5 | Скорость сходимости градиентного спуска | [PDF](pdf/seminar05_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar05/seminar05_computational_tasks.ipynb) |
 | 6 | Матричное и автоматическое дифференцирование | [PDF](pdf/seminar06_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar06/seminar06_computational_tasks.ipynb) |
+| 9 | Метод Ньютона | [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar09/seminar09_computational_tasks.ipynb) |
+
 ## Домашние лабораторные
 
 | № | Тема | Материалы |
@@ -67,6 +69,8 @@ seminars/
   seminar06/
     seminar06_theory.pdf
     seminar06_computational_tasks.ipynb
+  seminar09/
+    seminar09_computational_tasks.ipynb
 labs/
   lab01/
     README.md
