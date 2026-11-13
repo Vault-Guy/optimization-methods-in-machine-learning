@@ -17,8 +17,9 @@
 | 7 | Матричное и автоматическое дифференцирование | [PDF](pdf/lecture07_auto_differentiation.pdf) | [LaTeX](lectures/lecture07/lecture07_auto_differentiation.tex) · [генератор рисунков](lectures/lecture07/generate_figures.py) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/lectures/lecture07/lecture07_illustrations_colab.ipynb) |
 | 8 | Выбор шага в градиентных методах: точный поиск, условие Армихо и гарантии | [PDF](pdf/lecture08_step_selection_math.pdf) | [LaTeX](lectures/lecture08/lecture08_step_selection_math.tex) · [графики](lectures/lecture08/generate_figures.py) |
 | 9 | Метод Ньютона: от градиента к кривизне | [PDF](pdf/lecture09_newton.pdf) | [LaTeX](lectures/lecture09/lecture09_newton.tex) · [графики](lectures/lecture09/generate_figures.py) |
+| 10 | Предобусловливание и геометрия методов оптимизации | [PDF](pdf/lecture10_preconditioning.pdf) | [LaTeX](lectures/lecture10/lecture10_preconditioning.tex) · [графики](lectures/lecture10/generate_figures.py) · [план](lectures/lecture10/plan.md) |
 
-> PDF собираются автоматически GitHub Actions после изменений исходников. Если ссылки временно недоступны сразу после коммита, нужно дождаться завершения workflow **Build lecture PDFs**.
+> PDF собираются автоматически GitHub Actions после изменений исходников. Если ссылки временно недоступны сразу после коммита, нужно дождаться завершения workflow **Build course PDFs**.
 
 ## Семинары
 
@@ -50,6 +51,7 @@ lectures/
   lecture07/
   lecture08/
   lecture09/
+  lecture10/
 seminars/
   seminar02/
     seminar02_theory.tex
@@ -79,7 +81,7 @@ pdf/                     # автоматически собранные лек�
 
 Подробные инструкции находятся в [BUILD.md](BUILD.md).
 
-Лекция 1 рассчитана на **XeLaTeX**, лекции 2–9 — на **pdfLaTeX**. Графики для лекций 2–9 генерируются соответствующими Python-скриптами. Автоматическая сборка сама получает HSE Beamer theme и сохраняет готовые PDF.
+Лекция 1 рассчитана на **XeLaTeX**, лекции 2–10 — на **pdfLaTeX**. Графики для лекций 2–10 генерируются соответствующими Python-скриптами. Автоматическая сборка сама получает HSE Beamer theme и сохраняет готовые PDF.
 
 Python-зависимости перечислены в [requirements.txt](requirements.txt).
 

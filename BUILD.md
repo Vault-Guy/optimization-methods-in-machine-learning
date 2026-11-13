@@ -9,29 +9,27 @@ Workflow `.github/workflows/build-pdfs.yml` запускается автома�
 - `requirements.txt`;
 - самом workflow.
 
-Его также можно запустить вручную через **Actions → Build lecture PDFs → Run workflow**.
+Его также можно запустить вручную через **Actions → Build course PDFs → Run workflow**.
 
 Workflow:
 
 1. устанавливает Python-зависимости и TeX Live;
 2. загружает HSE Beamer theme из зафиксированного коммита внешнего шаблона;
-3. генерирует рисунки для лекций 2–4;
-4. собирает лекцию 1 через XeLaTeX, лекции 2–4 через pdfLaTeX;
-5. загружает четыре PDF как GitHub Actions artifact;
+3. генерирует рисунки для лекций 2–10;
+4. собирает лекцию 1 через XeLaTeX, лекции 2–10 через pdfLaTeX;
+5. загружает десять PDF как GitHub Actions artifact;
 6. при изменении PDF автоматически коммитит их в каталог `pdf/` ветки `main`.
 
 Коммит, который обновляет только `pdf/*.pdf`, не запускает workflow повторно.
 
 ## Локальная сборка
 
-Лекция 1 использует XeLaTeX. Лекции 2–4 используют pdfLaTeX.
+Лекция 1 использует XeLaTeX. Лекции 2–10 используют pdfLaTeX.
 
-Для лекций 2–4 сначала сгенерируйте рисунки:
+Для лекций 2–10 сначала сгенерируйте рисунки соответствующими скриптами. Например, для лекции 10:
 
 ```bash
-python lectures/lecture02/generate_figures.py
-python lectures/lecture03/generate_figures.py
-python lectures/lecture04/generate_figures.py
+python lectures/lecture10/generate_figures.py
 ```
 
 Python-зависимости:
@@ -50,6 +48,6 @@ latexmk -xelatex -interaction=nonstopmode -halt-on-error lecture01_optimization_
 ```
 
 ```bash
-cd lectures/lecture04
-latexmk -pdf -interaction=nonstopmode -halt-on-error lecture04_conditioning_gd.tex
+cd lectures/lecture10
+latexmk -pdf -interaction=nonstopmode -halt-on-error lecture10_preconditioning.tex
 ```
