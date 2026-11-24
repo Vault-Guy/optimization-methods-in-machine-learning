@@ -18,6 +18,7 @@
 | 8 | Выбор шага в градиентных методах: точный поиск, условие Армихо и гарантии | [PDF](pdf/lecture08_step_selection_math.pdf) | [LaTeX](lectures/lecture08/lecture08_step_selection_math.tex) · [графики](lectures/lecture08/generate_figures.py) |
 | 9 | Метод Ньютона: от градиента к кривизне | [PDF](pdf/lecture09_newton.pdf) | [LaTeX](lectures/lecture09/lecture09_newton.tex) · [графики](lectures/lecture09/generate_figures.py) |
 | 10 | Предобусловливание и геометрия методов оптимизации | [PDF](pdf/lecture10_preconditioning.pdf) | [LaTeX](lectures/lecture10/lecture10_preconditioning.tex) · [графики](lectures/lecture10/generate_figures.py) · [план](lectures/lecture10/plan.md) |
+| 11 | Метод тяжёлого шарика | [PDF](pdf/lecture11_heavy_ball.pdf) | [LaTeX](lectures/lecture11/lecture11_heavy_ball.tex) · [графики](lectures/lecture11/generate_figures.py) · [план](lectures/lecture11/plan.md) |
 
 > PDF собираются автоматически GitHub Actions после изменений исходников. Если ссылки временно недоступны сразу после коммита, нужно дождаться завершения workflow **Build course PDFs**.
 
@@ -30,6 +31,8 @@
 | 4 | Гладкость, выпуклость и условия оптимальности | [PDF](pdf/seminar04_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar04/seminar04_computational_tasks.ipynb) |
 | 5 | Скорость сходимости градиентного спуска | [PDF](pdf/seminar05_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar05/seminar05_computational_tasks.ipynb) |
 | 6 | Матричное и автоматическое дифференцирование | [PDF](pdf/seminar06_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar06/seminar06_computational_tasks.ipynb) |
+| 8 | Предобусловливание | [PDF](pdf/seminar08_theory.pdf) · [Colab](https://colab.research.google.com/github/Vault-Guy/optimization-methods-in-machine-learning/blob/main/seminars/seminar08/seminar08_computational_tasks.ipynb) · [исходник](seminars/seminar08/seminar08_theory.tex) |
+
 ## Домашние лабораторные
 
 | № | Тема | Материалы |
@@ -52,6 +55,7 @@ lectures/
   lecture08/
   lecture09/
   lecture10/
+  lecture11/
 seminars/
   seminar02/
     seminar02_theory.tex
@@ -69,6 +73,10 @@ seminars/
   seminar06/
     seminar06_theory.pdf
     seminar06_computational_tasks.ipynb
+  seminar08/
+    seminar08_theory.tex
+    seminar08_theory.pdf
+    seminar08_computational_tasks.ipynb
 labs/
   lab01/
     README.md
@@ -81,7 +89,7 @@ pdf/                     # автоматически собранные лек�
 
 Подробные инструкции находятся в [BUILD.md](BUILD.md).
 
-Лекция 1 рассчитана на **XeLaTeX**, лекции 2–10 — на **pdfLaTeX**. Графики для лекций 2–10 генерируются соответствующими Python-скриптами. Автоматическая сборка сама получает HSE Beamer theme и сохраняет готовые PDF.
+Лекция 1 рассчитана на **XeLaTeX**, лекции 2–11 — на **pdfLaTeX**. Графики для лекций 2–11 генерируются соответствующими Python-скриптами. Автоматическая сборка сама получает HSE Beamer theme и сохраняет готовые PDF.
 
 Python-зависимости перечислены в [requirements.txt](requirements.txt).
 

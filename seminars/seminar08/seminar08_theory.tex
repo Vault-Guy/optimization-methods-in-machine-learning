@@ -1,0 +1,164 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{DejaVu Sans}
+\setsansfont{DejaVu Sans}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\geometry{left=18mm,right=18mm,top=18mm,bottom=20mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\definecolor{hseblue}{HTML}{003D7C}
+\hypersetup{colorlinks=true,linkcolor=hseblue,urlcolor=hseblue}
+\pagestyle{fancy}
+\setlength{\headheight}{14pt}
+\fancyhf{}
+\lhead{Методы оптимизации в машинном обучении}
+\rhead{Семинар 8}
+\cfoot{\thepage}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\grad}{\nabla}
+\newcounter{problem}
+\newenvironment{problem}[1][]{%
+  \refstepcounter{problem}%
+  \begin{tcolorbox}[colback=white,colframe=hseblue!70!black,boxrule=0.7pt,arc=2mm,left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,title={\textbf{Задача \theproblem.} #1},fonttitle=\normalsize]
+}{\end{tcolorbox}}
+\begin{document}
+
+{\LARGE\bfseries\color{hseblue} Семинар 8. Предобусловливание}
+
+\vspace{0.4em}
+Материал лекции 10. Пять основных задач рассчитаны примерно на 40 минут у доски; программные аналоги --- ещё на 40 минут в Python/Colab. Пять дополнительных задач предназначены для самостоятельной работы. Все матрицы и начальные условия указаны явно. Если не сказано иное, $\norm{u}_P=\sqrt{u^\top Pu}$ при $P\succ0$.
+
+\section*{Основные задачи}
+
+\begin{problem}[Замена координат и новая геометрия]
+Пусть $q(x)=\tfrac12x^\top Ax-b^\top x$, где
+\[
+A=\begin{pmatrix}1&0\\0&16\end{pmatrix},\quad
+b=\begin{pmatrix}1\\4\end{pmatrix},\quad
+S=\begin{pmatrix}1&0\\0&1/4\end{pmatrix},\quad x=Sy.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Выпишите $\widetilde q(y)=q(Sy)$, найдите её градиент и гессиан. Во что превращаются линии уровня после замены координат?
+\item Из $y_0=0$ сделайте один шаг обычного градиентного спуска по $y$ с $\alpha=1$. Найдите соответствующие $x_0,x_1$ и минимум $x^*$ исходной задачи.
+\item Найдите $P=(SS^\top)^{-1}$ и проверьте прямым вычислением, что $x_1=x_0-P^{-1}\grad q(x_0)$. Почему замена координат не меняет саму задачу о минимуме?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Направление спуска без обратной матрицы]
+В некоторой точке $x$ известен градиент $g=(2,-1)^\top$. Возьмём
+$P=\begin{pmatrix}2&1\\1&2\end{pmatrix}$ и направление $p=-P^{-1}g$.
+\begin{enumerate}[label=\alph*)]
+\item Проверьте $P\succ0$ и найдите $p$, решив систему $Pp=-g$.
+\item Вычислите $g^\top p$ и $p^\top Pp$. Докажите для произвольных $P\succ0$, $g\ne0$, что эти величины связаны равенством $g^\top p=-p^\top Pp<0$.
+\item Что это равенство говорит о $f(x+\alpha p)$ при достаточно малом $\alpha>0$? Совпадает ли $p$ с направлением $-g$ с точностью до положительного множителя?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Спектр определяет допустимый шаг и скорость]
+Рассмотрим $q(x)=\tfrac12x^\top Ax$, $x_0=(1,1)^\top$ и
+\[
+A=\operatorname{diag}(1,9),\qquad P=\operatorname{diag}(1,3).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите собственные значения $A$ и $B=P^{-1/2}AP^{-1/2}$, а также $\kappa(A)$ и $\kappa(B)$.
+\item Вычислите наилучшие постоянные шаги и худшие множители сжатия для обычного и предобусловленного градиентного спуска на этой квадратичной задаче.
+\item Сделайте один предобусловленный шаг с найденным $\alpha$. Проверьте непосредственно, что $\norm{x_1}_P/\norm{x_0}_P$ равна предсказанному множителю.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Когда диагонального масштабирования недостаточно]
+Для каждой из матриц
+\[
+A_1=\begin{pmatrix}1&0\\0&9\end{pmatrix},\qquad
+A_2=\begin{pmatrix}5&4\\4&5\end{pmatrix}
+\]
+возьмите диагональный предобусловливатель Якоби $P_J=\operatorname{diag}(A)$.
+\begin{enumerate}[label=\alph*)]
+\item Найдите собственные значения и числа обусловленности $A_1,A_2$.
+\item Для каждой матрицы вычислите $B=P_J^{-1/2}AP_J^{-1/2}$ и $\kappa(B)$. В каком случае метод станет быстрее согласно квадратичной оценке, а в каком ускорения нет?
+\item Объясните вычислениями, почему диагональная матрица не устраняет связь координат в $A_2$. Что дал бы формальный выбор $P=A_2$ и какую дополнительную работу он потребовал бы на каждом шаге?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Предобусловливание регуляризованного МНК]
+Пусть
+\[
+F(w)=\tfrac12\norm{Xw-y}_2^2+\tfrac12\norm w_2^2,
+\quad X=\operatorname{diag}(1,4),\quad y=(1,1)^\top,\quad w_0=0.
+\]
+\begin{enumerate}[label=\alph*)]
+\item Найдите $\grad F(w)=Aw-b$, матрицу $A$, вектор $b$ и минимум $w^*$.
+\item Выберите $P=\operatorname{diag}(A)$ и сделайте один предобусловленный шаг с $\alpha=1$. Сравните с одним обычным градиентным шагом при $\alpha=1/\lambda_{\max}(A)$.
+\item Почему в этом примере $P=\operatorname{diag}(A)$ является идеальным выбором? Как вычислительная цена шага изменится, если матрица $A$ перестанет быть диагональной?
+\end{enumerate}
+\end{problem}
+
+\section*{Дополнительные задачи}
+
+\begin{problem}[Почему требуется положительная определённость]
+Для $f(x)=\tfrac12\norm x_2^2$ возьмите $x=(0,1)^\top$ и $P=\operatorname{diag}(1,-1)$.
+\begin{enumerate}[label=\alph*)]
+\item Вычислите $g=\grad f(x)$, $p=-P^{-1}g$ и $g^\top p$. Является ли $p$ направлением спуска?
+\item Найдите $f(x+\alpha p)$ при $\alpha>0$ и сравните его с $f(x)$.
+\item Что случится с уравнением $Pp=-g$, если вместо этой матрицы взять $P=\operatorname{diag}(1,0)$? Укажите, какое место доказательства задачи 2 перестаёт работать.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Спектральная эквивалентность]
+Пусть $A,P\succ0$ и для всех $u\in\R^d$ выполнено
+$a\,u^\top Pu\le u^\top Au\le b\,u^\top Pu$, где $0<a\le b$.
+\begin{enumerate}[label=\alph*)]
+\item Подставив $u=P^{-1/2}v$, докажите $aI\preceq B=P^{-1/2}AP^{-1/2}\preceq bI$.
+\item Выведите из этого верхнюю границу на $\kappa(B)$ и оценку множителя сжатия при шаге $\alpha=2/(a+b)$.
+\item Проверьте все оценки для $P=\operatorname{diag}(2,8)$, $A=\operatorname{diag}(1,16)$, $a=1/2$, $b=2$. Совпадает ли полученный множитель с фактическим худшим множителем?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Предобусловливатель может ухудшить скорость]
+Пусть $A=\operatorname{diag}(1,4)$, $P=\operatorname{diag}(1,64)$ и $q(x)=\tfrac12x^\top Ax$.
+\begin{enumerate}[label=\alph*)]
+\item Найдите $B=P^{-1/2}AP^{-1/2}$ и сравните $\kappa(B)$ с $\kappa(A)$.
+\item Для обоих методов найдите оптимальные постоянные шаги и худшие множители на соответствующих спектрах.
+\item Из $x_0=(1,1)^\top$ вычислите первые шаги обоих методов. Согласуется ли результат одного шага с выводом об асимптотических множителях? Почему одних первых итераций недостаточно для оценки скорости?
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Что происходит с регуляризацией при замене переменной]
+Возьмите
+\[
+F(w)=\tfrac12\norm{Xw-y}_2^2+\tfrac12\norm w_2^2,
+\quad X=\operatorname{diag}(1,2),\quad y=(1,1)^\top,
+\quad w=Sz,\quad S=\operatorname{diag}(1,1/2).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Выпишите $F(Sz)$ полностью. Найдите гессиан по $z$, минимум $z^*$ и соответствующее $w^*=Sz^*$.
+\item Сравните с минимумом исходной задачи, найденным непосредственно по $w$.
+\item Допустим, после замены переменной ошибочно оставили штраф $\tfrac12\norm z_2^2$ вместо $\tfrac12\norm{Sz}_2^2$. Найдите полученный минимум и объясните, почему это уже другая задача.
+\end{enumerate}
+\end{problem}
+
+\begin{problem}[Диагональный шаг для логистической регрессии]
+Рассмотрим
+\[
+F(w)=\sum_{i=1}^2\log(1+e^{-y_i a_i^\top w})+\tfrac12\norm w_2^2,
+\quad (a_1,y_1)=((1,0)^\top,1),\quad (a_2,y_2)=((1,1)^\top,-1).
+\]
+\begin{enumerate}[label=\alph*)]
+\item Вычислите $g_0=\grad F(0)$ и $H_0=\grad^2F(0)$.
+\item Возьмите $P=\operatorname{diag}(H_0)$, решите $Pp=-g_0$ и проверьте $g_0^\top p<0$.
+\item Решите также $H_0p_N=-g_0$. Почему диагональный предобусловленный шаг и направление Ньютона различаются? Укажите, какая связь между координатами отброшена при выборе $P$.
+\end{enumerate}
+\end{problem}
+
+\end{document}
